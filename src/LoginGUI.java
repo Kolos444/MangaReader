@@ -14,6 +14,8 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.stream.Collectors;
+
 import APIClasses.*;
 
 
@@ -87,24 +89,32 @@ public class LoginGUI extends Application {
 			
 			if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-				
 				Gson             gson = new Gson();
 				APILoginResponse loginResponse = gson.fromJson(inputReader, APILoginResponse.class);
 				
 				statusText.setText(loginResponse.getResult());
 				
-				String output = inputReader.readLine();
+				//TODO Versuch nochmal ob es mit dem BufferedReader geht auch wenn es sich wie Krebs anfühlt
+				String json = gson.toJson(loginResponse);
 				
-				FileOutputStream fileOutputStream = new FileOutputStream(new File("data.json"));
-				int i = inputReader.read();
-				fileOutputStream.write(i);
-				fileOutputStream.close();
+				writeFile(json,"data.json");
+				
 			}else {
 				statusText.setText("HTTP Error Code: " + connection.getResponseCode());
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
 			statusText.setText("Error IO Exception");
+		}
+	}
+	
+	private void writeFile(String output, String fileName) {
+		try {
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileName));
+			bufferedWriter.write(output);
+			bufferedWriter.close();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
