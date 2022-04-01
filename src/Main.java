@@ -7,7 +7,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		Application.launch(LoginGUI.class, args);
+		Application.launch(SetStages.class, args);
 		
 		
 	}

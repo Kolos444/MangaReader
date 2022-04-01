@@ -1,6 +1,5 @@
 import APIClasses.APILoginUser;
 import com.google.gson.Gson;
-import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,22 +13,26 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.stream.Collectors;
 
 import APIClasses.*;
 
 
-public class LoginGUI extends Application {
+public class LoginGUI{
 
-	private Stage         primaryStage;
-	private TextField     textFieldUsername;
+	private final Stage     primaryStage;
+	private       TextField textFieldUsername;
 	private PasswordField passwordFieldPassword;
 	private Text          statusText;
 	MangaReaderSingleton mangaReaderSingleton = MangaReaderSingleton.instance();
+	SetStages            setStages;
 	
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		this.primaryStage = primaryStage;
+	public Stage returnStage(){
+		return primaryStage;
+	}
+	
+	public LoginGUI(SetStages setStages) throws Exception {
+		this.setStages = setStages;
+		primaryStage = new Stage();
 		
 		BorderPane LoginWindow = new BorderPane();
 		
@@ -70,17 +73,14 @@ public class LoginGUI extends Application {
 	
 	private Node buildLoginButton() {
 		Button buttonLogin = new Button("Login");
-		buttonLogin.setOnAction(ev -> {buildLoginButtonOnAction();});
+		buttonLogin.setOnAction(ev -> {BuildHttpConnectionPostLogin();});
 		return buttonLogin;
-	}
-	
-	private void buildLoginButtonOnAction() {
-		BuildHttpConnectionPostLogin();
 	}
 	
 	private String buildJsonObjectUser() {
 		Gson   gson              = new Gson();
-		return gson.toJson(new APILoginUser(textFieldUsername.getCharacters().toString(), passwordFieldPassword.getCharacters().toString()));
+		mangaReaderSingleton.apiLoginUser = new APILoginUser(textFieldUsername.getCharacters().toString(), passwordFieldPassword.getCharacters().toString());
+		return gson.toJson(mangaReaderSingleton.apiLoginUser);
 	}
 	
 	private void BuildHttpConnectionPostLogin() {
@@ -91,6 +91,7 @@ public class LoginGUI extends Application {
 				BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				Gson             gson = new Gson();
 				APILoginResponse loginResponse = gson.fromJson(inputReader, APILoginResponse.class);
+				mangaReaderSingleton.apiToken = loginResponse.getToken();
 				
 				statusText.setText(loginResponse.getResult());
 				
@@ -99,6 +100,8 @@ public class LoginGUI extends Application {
 				
 				writeFile(json,"data.json");
 				
+				primaryStage.close();
+				setStages.endLoginGUI();
 			}else {
 				statusText.setText("HTTP Error Code: " + connection.getResponseCode());
 			}

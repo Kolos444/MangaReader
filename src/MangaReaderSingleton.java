@@ -1,3 +1,6 @@
+import APIClasses.APILoginUser;
+import APIClasses.APIToken;
+
 import java.net.HttpURLConnection;
 
 public class MangaReaderSingleton {
@@ -10,4 +13,6 @@ public class MangaReaderSingleton {
 		return holyInstance;
 	}
 	
+	public APIToken apiToken;
+	public APILoginUser apiLoginUser;
 }
