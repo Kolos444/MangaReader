@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.awt.*;
+import java.io.IOException;
 
 public class MainGUI {
 	SetStages setStages;
@@ -20,7 +21,7 @@ public class MainGUI {
 		return primaryStage;
 	}
 	
-	public MainGUI(SetStages setStages) {
+	public MainGUI(SetStages setStages) throws IOException {
 		this.setStages = setStages;
 		
 		primaryStage = new Stage();
@@ -128,13 +129,13 @@ public class MainGUI {
 		return null;
 	}
 	
-	private Node buildMainWindowCenter() {
+	private Node buildMainWindowCenter() throws IOException {
 		BorderPane mainBorder = new BorderPane();
 		
 		mainBorder.setMinHeight(680);
 		mainBorder.setMinWidth(1280);
 		
-		//mainBorder.setCenter();
+		mainBorder.setCenter(mainGUIMainPage.buildMainGUIMainPage());
 		
 		return mainBorder;
 	}

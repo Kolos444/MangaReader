@@ -12,27 +12,26 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 import APIClasses.*;
 
 
-public class LoginGUI{
-
-	private final Stage     primaryStage;
-	private       TextField textFieldUsername;
-	private PasswordField passwordFieldPassword;
-	private Text          statusText;
+public class LoginGUI {
+	
+	private final Stage         primaryStage;
+	private       TextField     textFieldUsername;
+	private       PasswordField passwordFieldPassword;
+	private       Text          statusText;
 	MangaReaderSingleton mangaReaderSingleton = MangaReaderSingleton.instance();
 	SetStages            setStages;
 	
-	public Stage returnStage(){
+	public Stage returnStage() {
 		return primaryStage;
 	}
 	
 	public LoginGUI(SetStages setStages) throws Exception {
 		this.setStages = setStages;
-		primaryStage = new Stage();
+		primaryStage   = new Stage();
 		
 		BorderPane LoginWindow = new BorderPane();
 		
@@ -78,31 +77,33 @@ public class LoginGUI{
 	}
 	
 	private String buildJsonObjectUser() {
-		Gson   gson              = new Gson();
-		mangaReaderSingleton.apiLoginUser = new APILoginUser(textFieldUsername.getCharacters().toString(), passwordFieldPassword.getCharacters().toString());
+		Gson gson = new Gson();
+		mangaReaderSingleton.apiLoginUser = new APILoginUser(textFieldUsername.getCharacters().toString(),
+															 passwordFieldPassword.getCharacters().toString());
 		return gson.toJson(mangaReaderSingleton.apiLoginUser);
 	}
 	
 	private void BuildHttpConnectionPostLogin() {
 		try {
-			HttpURLConnection connection = getHttpPostResponse("https://api.mangadex.org/auth/login", buildJsonObjectUser());
+			HttpURLConnection connection =
+					HTTP.getHttpResponse("https://api.mangadex.org/auth/login", buildJsonObjectUser(), "POST");
 			
 			if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-				Gson             gson = new Gson();
+				BufferedReader   inputReader   = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				Gson             gson          = new Gson();
 				APILoginResponse loginResponse = gson.fromJson(inputReader, APILoginResponse.class);
 				mangaReaderSingleton.apiToken = loginResponse.getToken();
 				
 				statusText.setText(loginResponse.getResult());
 				
-				//TODO Versuch nochmal ob es mit dem BufferedReader geht auch wenn es sich wie Krebs anfühlt
+				//TODO Versuch nochmal ob es mit dem BufferedReader geht, auch wenn es sich wie Krebs anfühlt
 				String json = gson.toJson(loginResponse);
 				
-				writeFile(json,"data.json");
+				writeFile(json, "data.json");
 				
 				primaryStage.close();
 				setStages.endLoginGUI();
-			}else {
+			} else {
 				statusText.setText("HTTP Error Code: " + connection.getResponseCode());
 			}
 		} catch(IOException e) {
@@ -121,28 +122,9 @@ public class LoginGUI{
 		}
 	}
 	
-	private HttpURLConnection getHttpPostResponse(String url, String json) throws IOException {
-		URL UrlObj = new URL(url);
-		HttpURLConnection connection = getHttpPost(UrlObj);
-		
-		setHTTPPostBody(json, connection);
-		
-		return connection;
-	}
+
 	
-	private void setHTTPPostBody(String json, HttpURLConnection connection) throws IOException {
-		DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-		outputStream.writeBytes(json);
-		outputStream.flush();
-		outputStream.close();
-	}
+
 	
-	private HttpURLConnection getHttpPost(URL UrlObj) throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) UrlObj.openConnection();
-		
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-		connection.setDoOutput(true);
-		return connection;
-	}
+
 }
