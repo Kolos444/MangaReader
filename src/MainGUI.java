@@ -14,19 +14,20 @@ import java.awt.*;
 import java.io.IOException;
 
 public class MainGUI {
-	SetStages setStages;
-	private final Stage primaryStage;
+
+	//Die primaryStage in der alles angezeigt wird
+	private final Stage mainGUI;
+
+	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
 	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
 	
 	public Stage returnStage() {
-		return primaryStage;
+		return mainGUI;
 	}
 	
-	public MainGUI(SetStages setStages) throws IOException {
-		this.setStages = setStages;
-		
-		primaryStage = new Stage();
-		primaryStage.initStyle(StageStyle.UNDECORATED);
+	public MainGUI() throws IOException {
+		mainGUI = new Stage();
+		mainGUI.initStyle(StageStyle.UNDECORATED);
 		
 		singleton.mainWindow = new BorderPane();
 		
@@ -39,8 +40,8 @@ public class MainGUI {
 		
 
 		
-		primaryStage.setScene(scene);
-		primaryStage.show();
+		mainGUI.setScene(scene);
+		mainGUI.show();
 	}
 	
 	private Node buildMainWindowTop() {

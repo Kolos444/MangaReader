@@ -178,10 +178,10 @@ public class mainGUIMainPage {
 	private static Node buildMangaDescription() {
 		VBox back = new VBox();
 		
-		javafx.scene.control.TextArea description =
-				new javafx.scene.control.TextArea(mangaObject.data.attributes.description.en);
+		//javafx.scene.control.TextArea description =
+		//TODO Kommenntar entfernen		new javafx.scene.control.TextArea(mangaObject.data.attributes.description.en);
 		
-		back.getChildren().add(description);
+		//back.getChildren().add(description);
 		
 		return back;
 	}
