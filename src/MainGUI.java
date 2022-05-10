@@ -16,6 +16,7 @@ import java.io.IOException;
 public class MainGUI {
 	SetStages setStages;
 	private final Stage primaryStage;
+	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
 	
 	public Stage returnStage() {
 		return primaryStage;
@@ -27,14 +28,16 @@ public class MainGUI {
 		primaryStage = new Stage();
 		primaryStage.initStyle(StageStyle.UNDECORATED);
 		
-		BorderPane mainWindow = new BorderPane();
+		singleton.mainWindow = new BorderPane();
 		
-		mainWindow.setTop(buildMainWindowTop());
-		mainWindow.setCenter(buildMainWindowCenter());
+		singleton.mainWindow.setTop(buildMainWindowTop());
+		singleton.mainWindow.setCenter(buildMainWindowCenter());
 		
-		Scene scene = new Scene(mainWindow);
+		Scene scene = new Scene(singleton.mainWindow);
 		scene.getStylesheets().addAll(MainGUI.class.getResource("mainWindow.css").toExternalForm(),
-									  MainGUI.class.getResource("mainMenu.css").toExternalForm());
+		                              MainGUI.class.getResource("mainMenu.css").toExternalForm());
+		
+
 		
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -67,7 +70,7 @@ public class MainGUI {
 	
 	private Menu getMenuManga() {
 		Menu menu = new Menu("Manga");
-		menu.getItems().addAll(buildMangaStandard(),buildMangaNewest(),buildMangaBest(),buildMangaPopular());
+		menu.getItems().addAll(buildMangaStandard(), buildMangaNewest(), buildMangaBest(), buildMangaPopular());
 		return menu;
 	}
 	
@@ -135,10 +138,13 @@ public class MainGUI {
 		mainBorder.setMinHeight(680);
 		mainBorder.setMinWidth(1280);
 		
+		singleton.width  = mainBorder.getMinWidth();
+		singleton.height = mainBorder.getMinHeight();
+		
 		mainBorder.setCenter(mainGUIMainPage.buildMainGUIMainPage());
 		
 		return mainBorder;
 	}
 	
-
+	
 }

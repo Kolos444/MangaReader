@@ -7,4 +7,7 @@ public class APIRelationshipsAttributes {
 	public String[] availableTranslatedLanguages;
 	public String   volume;
 	public String   fileName;
+	public String id;
+	public String type;
+	public APICoverAttributes attributes;
 }

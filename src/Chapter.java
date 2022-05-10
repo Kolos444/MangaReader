@@ -1,12 +1,13 @@
 import javafx.scene.image.Image;
 
 public class Chapter {
-	public String title = null;
+	public String title;
 	public String chapterTitle;
 	public String chapterNumber;
-	public String group = null;
+	public String group;
 	public String updatedAgo; //TODO Muss noch ausgerechnet werden
 	public Image  mangaCover;
+	public String id;
 	
 	public Chapter() {}
 }

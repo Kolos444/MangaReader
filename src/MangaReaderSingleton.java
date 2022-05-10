@@ -3,10 +3,12 @@ import APIClasses.APILoginUser;
 import APIClasses.APIToken;
 import APICustomListClasses.APISeasonalListResponse;
 import APIMangaClasses.APIMangaListResponse;
+import javafx.scene.layout.BorderPane;
 
 public class MangaReaderSingleton {
 	
 	private static final MangaReaderSingleton holyInstance = new MangaReaderSingleton();
+	public BorderPane mainWindow;
 	
 	private MangaReaderSingleton(){	}
 	
@@ -28,4 +30,7 @@ public class MangaReaderSingleton {
 	
 	//https://api.mangadex.org/list/ff210dec-862b-4c17-8608-0e7f97c70488
 	public APISeasonalListResponse mangaListSeasonalAdded;
+	public double                  screenHeight, screenWidth,height,width;
+	public BorderPane mainWindowBorder;
+	
 }

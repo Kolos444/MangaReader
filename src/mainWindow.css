@@ -1,6 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+
 *{
-	-fx-font-size   :20;
 	-fx-font-family :ubuntu, sans-serif;
+	
 	}
 
 .root{
@@ -13,11 +15,36 @@
 
 .text-field{
 	-fx-background-color :#24282B;
-	-fx-text-fill        :#94999D;
-	-fx-font-size   :16;
+	-fx-text-fill        :#DEDEDE;
+	-fx-font-size        :16;
 	}
 
 #searchButton{
 	-fx-background-color :#48494B;
 	-fx-text-fill        :#94999D;
+	}
+
+.label{
+	-fx-text-fill :#DEDEDE;
+	-fx-font-size :14;
+	
+	}
+
+#latestUpdateTitle{
+	-fx-font-size   :16;
+	-fx-font-weight :bold;
+	}
+
+#latestUpdateChapterTitle{
+	-fx-font-size :14;
+	}
+
+#latestUpdateGroup{
+	-fx-font-size :12;
+	
+	}
+
+#latestUpdateUpdatedAgo{
+	-fx-font-size :12;
+	
 	}
