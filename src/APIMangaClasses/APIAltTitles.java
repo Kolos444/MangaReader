@@ -1,8 +1,8 @@
 package APIMangaClasses;
 
 public class APIAltTitles {
-	String en;
-	String de;
-	String ko;
-	String jp;
+	public String en;
+	public String de;
+	public String ko;
+	public String jp;
 }

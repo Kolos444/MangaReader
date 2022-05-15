@@ -12,6 +12,7 @@ import CoverAbfrage.CoverAbfrage;
 import CoverAbfrage.CoverAbfrageData;
 import CoverAbfrage.CoverAbfrageDataRelationships;
 import com.google.gson.Gson;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -24,9 +25,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.time.*;
 import java.util.ArrayList;
@@ -40,6 +39,10 @@ public class mainGUIMainPage {
 	private static APIManga             mangaObject;
 
 	public static Node buildMainGUIMainPage() throws IOException {
+
+		String debug = "debug";
+		Image debugImage = new Image("https://uploads.mangadex.org/covers/e44f2e6c-d643-49c1-8d9b-6194635b2b72" +
+									 "/7c18fd6d-7631-49ae-b02f-a659776a040e.png.512.jpg");
 
 		//Initialisierung des Singletons
 		mangaReaderSingleton = MangaReaderSingleton.instance();
@@ -75,6 +78,8 @@ public class mainGUIMainPage {
 		VBox core  = new VBox();
 		HBox table = new HBox();
 
+		core.setPadding(new Insets(15));
+
 		//Besorgt die gewünschten Kapitel
 		Chapter[] chapters = getLatestChapters();
 
@@ -92,6 +97,7 @@ public class mainGUIMainPage {
 				if(i * 6 + a < chapters.length)
 					vBox[i].getChildren().add(buildChapterNode(chapters[i * 6 + a]));
 			borderPane[i].setCenter(vBox[i]);
+			borderPane[i].setPadding(new Insets(10));
 			table.getChildren().add(borderPane[i]);
 		}
 		core.getChildren().addAll(latestUpdatedSection, table);
@@ -102,8 +108,7 @@ public class mainGUIMainPage {
 		VBox       vBox       = new VBox();
 		BorderPane borderPane = new BorderPane();
 
-		Rectangle rectangle = new Rectangle(100.d, 100.d, mangaReaderSingleton.screenWidth * 0.0365d,
-											mangaReaderSingleton.screenHeight * 0.092d);
+		Rectangle rectangle = new Rectangle(100.d, 100.d, 45.0d, 60.0d);
 		rectangle.setArcHeight(10.0d);
 		rectangle.setArcWidth(10.0d);
 		rectangle.setFill(new ImagePattern(chapterData.mangaCover));
@@ -142,8 +147,8 @@ public class mainGUIMainPage {
 
 		borderPane.setCenter(otherVBox);
 
-		borderPane.setMinWidth(mangaReaderSingleton.width / 4);
-		borderPane.setMaxWidth(mangaReaderSingleton.width / 4);
+		borderPane.setMinWidth(mangaReaderSingleton.width / 4 - 10 * 4);
+		borderPane.setMaxWidth(mangaReaderSingleton.width / 4 - 10 * 4);
 		vBox.getChildren().add(borderPane);
 		vBox.setOnMouseClicked(event -> {
 			try {
@@ -152,6 +157,8 @@ public class mainGUIMainPage {
 				throw new RuntimeException(e);
 			}
 		});
+
+		vBox.setPadding(new Insets(5));
 		return vBox;
 	}
 
@@ -175,12 +182,15 @@ public class mainGUIMainPage {
 
 		for(APIMangaListRelationships relationship : mangaObject.data.relationships) {
 			if(relationship.type.equals("cover_art"))
-				cover = new ImageView("https://uploads.mangadex.org/covers/" + relationship.id);
+				cover = new ImageView("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
+									  relationship.attributes.fileName);
 		}
 
 		Label title = new Label(mangaObject.data.attributes.title.en);
 		title.setId("mangaTitle");
 
+		cover.maxHeight(30.0f);
+		cover.maxWidth(20.0f);
 		back.getChildren().addAll(cover, title);
 		return back;
 	}
@@ -206,16 +216,16 @@ public class mainGUIMainPage {
 		VBox back = new VBox();
 
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader      inputReader      =
-					new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			Gson                gson             = new Gson();
-			APIChaptersResponse chaptersResponse = gson.fromJson(inputReader, APIChaptersResponse.class);
+			APIChaptersResponse chaptersResponse =
+					gson.fromJson(filterGsonExceptions(inputReader), APIChaptersResponse.class);
 
 			for(APIChaptersData chapter : chaptersResponse.data) {
 				HBox hBox         = new HBox();
 				Text chapterTitle = new Text("Ch." + chapter.attributes.chapter + chapter.attributes.title);
 
-				Text group = null, user = null;
+				Text group = new Text("no group"), user = new Text("no uploader");
 				for(APICChaptersRelationships relation : chapter.relationships) {
 					if(relation.type.equals("scanlation_group"))
 						group = new Text(relation.attributes.name);
@@ -234,8 +244,8 @@ public class mainGUIMainPage {
 	}
 
 	private static APIManga getMangaObject(String id) throws IOException {
-		APIManga          manga;
-		HttpURLConnection connection = HTTP.getHttpResponse("https://api.mangadex.org/manga/" + id + "/", "GET");
+		HttpURLConnection connection =
+				HTTP.getHttpResponse("https://api.mangadex.org/manga/" + id + "?includes[]=cover_art", "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			Gson           gson        = new Gson();
@@ -248,10 +258,10 @@ public class mainGUIMainPage {
 	private static Chapter[] getLatestChapters() throws IOException {
 
 		//Eine Kapitel-Liste mit den letztlich zurückgegebenen Daten
-		List<Chapter> chapters     = new ArrayList<Chapter>() {};
+		List<Chapter> chapters = new ArrayList<Chapter>() {};
 
 		//Eine Liste mit den benötigten Bildern für die Manga Covers
-		List<String>  neededCovers = new ArrayList<String>() {};
+		List<String> neededCovers = new ArrayList<String>() {};
 
 		//Geht alle rohen API Daten durch
 		for(APIChapter chapter : mangaReaderSingleton.mangaListLatestUpdate.data) {
@@ -270,10 +280,11 @@ public class mainGUIMainPage {
 				if(relation.type.equals("scanlation_group"))
 					newChapter.group = relation.attributes.name;
 
-				//Sucht den zugehörigen Mangas aus
+					//Sucht den zugehörigen Mangas aus
 				else if(relation.type.equals("manga")) {
 
-					//Da der Titel unter umständen Null sein kann, wird in diesem Fall der Titel "localisation" gesetzt,
+					//Da der Titel unter umständen Null sein kann, wird in diesem Fall der Titel "localisation"
+					// gesetzt,
 					//ansonsten ganz normal auf den Titel.
 					if(relation.attributes.title.en != null)
 						newChapter.title = relation.attributes.title.en;
@@ -425,21 +436,37 @@ public class mainGUIMainPage {
 	private static APIMangaListResponse getMangas(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader       inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                 gson        = new Gson();
-			APIMangaListResponse mangaArray  = gson.fromJson(inputReader, APIMangaListResponse.class);
-			return mangaArray;
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson           gson        = new Gson();
+			return gson.fromJson(filterGsonExceptions(inputReader), APIMangaListResponse.class);
 		}
 		return new APIMangaListResponse();
+	}
+
+	//Korrigiert Fehler erzeugende JSON Dateien
+	private static BufferedReader filterGsonExceptions(BufferedReader inputReader) throws IOException {
+
+		//Speichert den Buffer als String zum Bearbeiten
+		String tmp = inputReader.readLine();
+
+		//Behebt einen Fehler bei dem eine Description ohne Daten als Array und nicht Objekt gesehen wird
+		//Expected BEGIN_ARRAY but was BEGIN_OBJECT
+		tmp = tmp.replace("\"description\":[]", "\"description\":{\"en\":\"No Description\"}");
+
+		//Vermutlich noch brauchbar
+		//tmp = tmp.replace("\"altNames\":[]", "\"altNames\":{\"en\":\"No Alternative Name\"}");
+
+		//Speichert und gibt einen neuen Reader korrigiert zurück
+		Reader inputString = new StringReader(tmp);
+		return new BufferedReader(inputString);
 	}
 
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader          inputReader =
-					new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson        = new Gson();
-			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson       = new Gson();
+			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();
