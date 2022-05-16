@@ -4,6 +4,7 @@ import APIClasses.APIToken;
 import APICustomListClasses.APISeasonalListResponse;
 import APIMangaClasses.APIMangaListResponse;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 public class MangaReaderSingleton {
 
@@ -16,8 +17,6 @@ public class MangaReaderSingleton {
 		return holyInstance;
 	}
 
-	public APIToken     apiToken;
-	public APILoginUser apiLoginUser;
 
 	//Wie Recently Added
 	public APIMangaListResponse mangaList;
@@ -31,6 +30,7 @@ public class MangaReaderSingleton {
 	//https://api.mangadex.org/list/ff210dec-862b-4c17-8608-0e7f97c70488
 	public APISeasonalListResponse mangaListSeasonalAdded;
 	public double                  height, width;
-	public BorderPane mainWindowBorder;
+	public BorderPane mainBorder;
+	public VBox mangaPage;
 
 }

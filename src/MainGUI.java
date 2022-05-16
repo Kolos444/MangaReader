@@ -21,6 +21,7 @@ public class MainGUI {
 	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
 	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
 	private static double xOffset, yOffset;
+	private BorderPane mainBorder;
 
 	public Stage returnStage() {
 		return mainGUI;
@@ -43,8 +44,8 @@ public class MainGUI {
 		});
 
 		Scene scene = new Scene(singleton.mainWindow);
-		scene.getStylesheets().addAll(MainGUI.class.getResource("mainWindow.css").toExternalForm(),
-									  MainGUI.class.getResource("mainMenu.css").toExternalForm());
+		scene.getStylesheets().addAll(getClass().getResource("mainWindow.css").toExternalForm(),
+									  getClass().getResource("mainMenu.css").toExternalForm());
 
 		singleton.mainWindow.setTop(buildMainWindowTop());
 		singleton.mainWindow.setCenter(buildMainWindowCenter());
@@ -143,7 +144,7 @@ public class MainGUI {
 	}
 
 	private Node buildMainWindowCenter() throws IOException {
-		BorderPane mainBorder = new BorderPane();
+		mainBorder = new BorderPane();
 
 		mainBorder.setMinHeight(680);
 		mainBorder.setMinWidth(1280);
@@ -151,7 +152,9 @@ public class MainGUI {
 		singleton.width  = mainBorder.getMinWidth();
 		singleton.height = mainBorder.getMinHeight();
 
-		mainBorder.setCenter(MainGUIMainPage.buildMainGUIMainPage());
+		mainBorder.setCenter(GUIMainPage.buildMainGUIMainPage());
+
+		singleton.mainBorder = mainBorder;
 
 		return mainBorder;
 	}

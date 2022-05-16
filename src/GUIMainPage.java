@@ -1,12 +1,8 @@
 import APIChapterClasses.APIChapter;
 import APIChapterClasses.APIChapterListResponse;
 import APIChapterClasses.APIChapterRelationships;
-import APIChapters.APICChaptersRelationships;
-import APIChapters.APIChaptersData;
-import APIChapters.APIChaptersResponse;
 import APICustomListClasses.APISeasonalListResponse;
 import APIMangaClasses.APIManga;
-import APIMangaClasses.APIMangaListRelationships;
 import APIMangaClasses.APIMangaListResponse;
 import CoverAbfrage.CoverAbfrage;
 import CoverAbfrage.CoverAbfrageData;
@@ -31,19 +27,17 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainGUIMainPage {
+public class GUIMainPage {
 
 	//Singleton mit wichtigen Klassenübergreifenden Daten
-	private static MangaReaderSingleton mangaReaderSingleton;
+	public static MangaReaderSingleton singleton;
 	//Der derzeitig ausgewählte Manga
-	private static APIManga             mangaObject;
+	public static APIManga             mangaObject;
 
 	public static Node buildMainGUIMainPage() throws IOException {
 
-		mangaReaderSingleton.mainWindow.getStylesheets().add(MainGUIMainPage.class.getResource("mainWindow.css").toExternalForm());
-
 		//Initialisierung des Singletons
-		mangaReaderSingleton = MangaReaderSingleton.instance();
+		singleton = MangaReaderSingleton.instance();
 
 		//Updated die im Singleton Manga Listen mit den neusten, zuletzt aktualisierten und saisonal Mangas
 		getMangaLists();
@@ -145,12 +139,12 @@ public class MainGUIMainPage {
 
 		borderPane.setCenter(otherVBox);
 
-		borderPane.setMinWidth(mangaReaderSingleton.width / 4 - 10 * 4);
-		borderPane.setMaxWidth(mangaReaderSingleton.width / 4 - 10 * 4);
+		borderPane.setMinWidth(singleton.width / 4 - 10 * 4);
+		borderPane.setMaxWidth(singleton.width / 4 - 10 * 4);
 		vBox.getChildren().add(borderPane);
 		vBox.setOnMouseClicked(event -> {
 			try {
-				showManga(chapterData.id);
+				MangaPage.showManga(chapterData.id);
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -158,135 +152,6 @@ public class MainGUIMainPage {
 
 		vBox.setPadding(new Insets(5));
 		return vBox;
-	}
-
-	private static void showManga(String id) throws IOException {
-		mangaObject = getMangaObject(id);
-		VBox back = new VBox();
-		back.getChildren().addAll(buildMangaTop(), buildMangaChapters());
-		mangaReaderSingleton.mainWindow.setCenter(back);
-
-	}
-
-	private static Node buildMangaTop() {
-		VBox back = new VBox();
-		back.getChildren().addAll(buildMangaPresentation(), buildMangaDescription());
-		return back;
-	}
-
-	private static Node buildMangaPresentation() {
-
-		//Das zurückgebende Element
-		HBox back = new HBox();
-
-		//Erstellt ein Rechteck in dem das Cover Bild angezeigt wird
-		Rectangle cover = new Rectangle(250, 250);
-		cover.setArcHeight(10.0f);
-		cover.setArcWidth(10.0f);
-
-		//Sucht das Cover Bild und speichert es im Rechteck
-		for(APIMangaListRelationships relationship : mangaObject.data.relationships) {
-			if(relationship.type.equals("cover_art")) {
-				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
-										relationship.attributes.fileName);
-				cover.setHeight(cover.getHeight() * image.getHeight() / image.getWidth());
-				cover.setFill(new ImagePattern(image));
-			}
-		}
-
-		//Erstellt ein LAbel des japanischen Titels der normalerweise der standard Titel ist
-		Label title = new Label("No Title found");
-		if(mangaObject.data.attributes.title.ja != null)
-			title = new Label(mangaObject.data.attributes.title.ja);
-		else if(mangaObject.data.attributes.title.en != null)
-			title = new Label(mangaObject.data.attributes.title.en);
-		title.setId("mangaTitle");
-
-		//Erstellt ein Label des englischen Titels
-		Label englishTitle = null;
-		if(mangaObject.data.attributes.title.en != null) {
-			englishTitle = new Label(mangaObject.data.attributes.title.en);
-			englishTitle.setId("mangaEnglishTitle");
-		}
-
-		//Es gibt einen fehler bei dem Attributes speziell bei Author und Artist nicht initialsiert wird obwohl das
-		// gleiche bei cover_art möglich ist
-		/*
-				//Sucht alle Authoren und Künstler raus und speichert sie in einem Label
-				StringBuilder peopleString = new StringBuilder();
-				for(APIMangaListRelationships relationship: mangaObject.data.relationships) {
-					if(relationship.type.equals("author")||relationship.type.equals("artist"))
-						if(relationship.attributes!=null)
-							peopleString.append(relationship.attributes.name+", ");
-				}
-				Label people = new Label(peopleString.toString());*/
-
-
-		back.getChildren().addAll(cover, title, englishTitle/*,people*/);
-		return back;
-	}
-
-	private static Node buildMangaDescription() {
-		VBox back = new VBox();
-
-		//javafx.scene.control.TextArea description =
-		//TODO Kommenntar entfernen		new javafx.scene.control.TextArea(mangaObject.data.attributes.description.en);
-
-		//back.getChildren().add(description);
-
-		return back;
-	}
-
-	private static Node buildMangaChapters() throws IOException {
-		HttpURLConnection connection = HTTP.getHttpResponse(
-				"https://api.mangadex.org/manga/" + mangaObject.data.id + "/feed?translatedLanguage[]=en" +
-				"&translatedLanguage[]=de&limit=300&includes[]=scanlation_group&includes[]=user&order[volume]=desc" +
-				"&order[chapter]=desc&offset=0&contentRating[]=safe&contentRating[]=suggestive&contentRating" +
-				"[]=erotica" + "&contentRating[]=pornographic", "GET");
-
-		VBox back = new VBox();
-
-		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson           gson        = new Gson();
-			APIChaptersResponse chaptersResponse =
-					gson.fromJson(filterGsonExceptions(inputReader), APIChaptersResponse.class);
-
-			for(APIChaptersData chapter : chaptersResponse.data) {
-				HBox hBox         = new HBox();
-				Text chapterTitle = new Text("Ch." + chapter.attributes.chapter + chapter.attributes.title);
-				chapterTitle.setId("chapterTitle");
-
-				Text group = new Text("no group"), user = new Text("no uploader");
-				for(APICChaptersRelationships relation : chapter.relationships) {
-					if(relation.type.equals("scanlation_group"))
-						group = new Text(relation.attributes.name);
-					if(relation.type.equals("user"))
-						user = new Text(relation.attributes.username);
-				}
-
-				Text createdAt = new Text(chapter.attributes.createdAt);
-				createdAt.setId("chapterInfo");
-				group.setId("chapterInfo");
-				user.setId("chapterInfo");
-
-				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);
-				hBox.onMouseClickedProperty();//TODO Open Chapter
-				back.getChildren().add(hBox);
-			}
-		}
-		return back;
-	}
-
-	private static APIManga getMangaObject(String id) throws IOException {
-		HttpURLConnection connection =
-				HTTP.getHttpResponse("https://api.mangadex.org/manga/" + id + "?includes[]=cover_art", "GET");
-		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson           gson        = new Gson();
-			return gson.fromJson(inputReader, APIManga.class);
-		}
-		return null;
 	}
 
 	//Wandelt die API Kapitel Daten aus dem Singleton in die nutzbare Kapitel-Klasse um und gibt dies als Array zurück
@@ -299,7 +164,7 @@ public class MainGUIMainPage {
 		List<String> neededCovers = new ArrayList<String>() {};
 
 		//Geht alle rohen API Daten durch
-		for(APIChapter chapter : mangaReaderSingleton.mangaListLatestUpdate.data) {
+		for(APIChapter chapter : singleton.mangaListLatestUpdate.data) {
 
 			Chapter newChapter = new Chapter();
 
@@ -445,14 +310,14 @@ public class MainGUIMainPage {
 
 	private static void getMangaLists() throws IOException {
 
-		mangaReaderSingleton.mangaListLatestUpdate  = getChapters(
+		singleton.mangaListLatestUpdate  = getChapters(
 				"https://api.mangadex.org/chapter?includes[]=manga&includes[]=scanlation_group&limit=24&translated" +
 				"Language[]=en&translatedLanguage[]=de&contentRating[]=safe&contentRating[]=suggestive&" +
 				"contentRating[]=erotica&order[readableAt]=desc");
-		mangaReaderSingleton.mangaListRecentlyAdded = getMangas(
+		singleton.mangaListRecentlyAdded = getMangas(
 				"https://api.mangadex.org/manga?limit=20&contentRating[]=safe&contentRating[]=suggestive&" +
 				"contentRating[]=erotica&order[createdAt]=desc&includes[]=cover_art");
-		mangaReaderSingleton.mangaListSeasonalAdded =
+		singleton.mangaListSeasonalAdded =
 				getMangasCustomList("https://api.mangadex.org/list/ff210dec-862b-4c17-8608-0e7f97c70488");
 
 
@@ -479,7 +344,7 @@ public class MainGUIMainPage {
 	}
 
 	//Korrigiert Fehler erzeugende JSON Dateien
-	private static BufferedReader filterGsonExceptions(BufferedReader inputReader) throws IOException {
+	public static BufferedReader filterGsonExceptions(BufferedReader inputReader) throws IOException {
 
 		//Speichert den Buffer als String zum Bearbeiten
 		String tmp = inputReader.readLine();
