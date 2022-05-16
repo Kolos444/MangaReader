@@ -1,4 +1,3 @@
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -6,7 +5,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -44,13 +42,12 @@ public class MainGUI {
 			mainGUI.setY(event.getScreenY() - yOffset);
 		});
 
-		singleton.mainWindow.setTop(buildMainWindowTop());
-		singleton.mainWindow.setCenter(buildMainWindowCenter());
-
 		Scene scene = new Scene(singleton.mainWindow);
 		scene.getStylesheets().addAll(MainGUI.class.getResource("mainWindow.css").toExternalForm(),
 									  MainGUI.class.getResource("mainMenu.css").toExternalForm());
 
+		singleton.mainWindow.setTop(buildMainWindowTop());
+		singleton.mainWindow.setCenter(buildMainWindowCenter());
 
 		mainGUI.setScene(scene);
 		mainGUI.show();
@@ -154,7 +151,7 @@ public class MainGUI {
 		singleton.width  = mainBorder.getMinWidth();
 		singleton.height = mainBorder.getMinHeight();
 
-		mainBorder.setCenter(mainGUIMainPage.buildMainGUIMainPage());
+		mainBorder.setCenter(MainGUIMainPage.buildMainGUIMainPage());
 
 		return mainBorder;
 	}

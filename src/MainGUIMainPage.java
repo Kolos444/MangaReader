@@ -31,7 +31,7 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class mainGUIMainPage {
+public class MainGUIMainPage {
 
 	//Singleton mit wichtigen Klassenübergreifenden Daten
 	private static MangaReaderSingleton mangaReaderSingleton;
@@ -40,9 +40,7 @@ public class mainGUIMainPage {
 
 	public static Node buildMainGUIMainPage() throws IOException {
 
-		String debug = "debug";
-		Image debugImage = new Image("https://uploads.mangadex.org/covers/e44f2e6c-d643-49c1-8d9b-6194635b2b72" +
-									 "/7c18fd6d-7631-49ae-b02f-a659776a040e.png.512.jpg");
+		mangaReaderSingleton.mainWindow.getStylesheets().add(MainGUIMainPage.class.getResource("mainWindow.css").toExternalForm());
 
 		//Initialisierung des Singletons
 		mangaReaderSingleton = MangaReaderSingleton.instance();
@@ -177,21 +175,54 @@ public class mainGUIMainPage {
 	}
 
 	private static Node buildMangaPresentation() {
-		HBox      back  = new HBox();
-		ImageView cover = null;
 
+		//Das zurückgebende Element
+		HBox back = new HBox();
+
+		//Erstellt ein Rechteck in dem das Cover Bild angezeigt wird
+		Rectangle cover = new Rectangle(250, 250);
+		cover.setArcHeight(10.0f);
+		cover.setArcWidth(10.0f);
+
+		//Sucht das Cover Bild und speichert es im Rechteck
 		for(APIMangaListRelationships relationship : mangaObject.data.relationships) {
-			if(relationship.type.equals("cover_art"))
-				cover = new ImageView("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
-									  relationship.attributes.fileName);
+			if(relationship.type.equals("cover_art")) {
+				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
+										relationship.attributes.fileName);
+				cover.setHeight(cover.getHeight() * image.getHeight() / image.getWidth());
+				cover.setFill(new ImagePattern(image));
+			}
 		}
 
-		Label title = new Label(mangaObject.data.attributes.title.en);
+		//Erstellt ein LAbel des japanischen Titels der normalerweise der standard Titel ist
+		Label title = new Label("No Title found");
+		if(mangaObject.data.attributes.title.ja != null)
+			title = new Label(mangaObject.data.attributes.title.ja);
+		else if(mangaObject.data.attributes.title.en != null)
+			title = new Label(mangaObject.data.attributes.title.en);
 		title.setId("mangaTitle");
 
-		cover.maxHeight(30.0f);
-		cover.maxWidth(20.0f);
-		back.getChildren().addAll(cover, title);
+		//Erstellt ein Label des englischen Titels
+		Label englishTitle = null;
+		if(mangaObject.data.attributes.title.en != null) {
+			englishTitle = new Label(mangaObject.data.attributes.title.en);
+			englishTitle.setId("mangaEnglishTitle");
+		}
+
+		//Es gibt einen fehler bei dem Attributes speziell bei Author und Artist nicht initialsiert wird obwohl das
+		// gleiche bei cover_art möglich ist
+		/*
+				//Sucht alle Authoren und Künstler raus und speichert sie in einem Label
+				StringBuilder peopleString = new StringBuilder();
+				for(APIMangaListRelationships relationship: mangaObject.data.relationships) {
+					if(relationship.type.equals("author")||relationship.type.equals("artist"))
+						if(relationship.attributes!=null)
+							peopleString.append(relationship.attributes.name+", ");
+				}
+				Label people = new Label(peopleString.toString());*/
+
+
+		back.getChildren().addAll(cover, title, englishTitle/*,people*/);
 		return back;
 	}
 
@@ -217,13 +248,14 @@ public class mainGUIMainPage {
 
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                gson             = new Gson();
+			Gson           gson        = new Gson();
 			APIChaptersResponse chaptersResponse =
 					gson.fromJson(filterGsonExceptions(inputReader), APIChaptersResponse.class);
 
 			for(APIChaptersData chapter : chaptersResponse.data) {
 				HBox hBox         = new HBox();
 				Text chapterTitle = new Text("Ch." + chapter.attributes.chapter + chapter.attributes.title);
+				chapterTitle.setId("chapterTitle");
 
 				Text group = new Text("no group"), user = new Text("no uploader");
 				for(APICChaptersRelationships relation : chapter.relationships) {
@@ -234,6 +266,9 @@ public class mainGUIMainPage {
 				}
 
 				Text createdAt = new Text(chapter.attributes.createdAt);
+				createdAt.setId("chapterInfo");
+				group.setId("chapterInfo");
+				user.setId("chapterInfo");
 
 				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);
 				hBox.onMouseClickedProperty();//TODO Open Chapter
