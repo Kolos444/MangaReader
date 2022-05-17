@@ -103,7 +103,12 @@ public class GUIMainPage {
 		Rectangle rectangle = new Rectangle(100.d, 100.d, 45.0d, 60.0d);
 		rectangle.setArcHeight(10.0d);
 		rectangle.setArcWidth(10.0d);
-		rectangle.setFill(new ImagePattern(chapterData.mangaCover));
+
+		if(chapterData.mangaCover != null)
+			rectangle.setFill(new ImagePattern(chapterData.mangaCover));
+		else
+			rectangle.setFill(new ImagePattern(new Image("../Images/Image not Found.jpg")));
+
 		Group rectangleGroup = new Group(rectangle);
 		borderPane.setLeft(rectangleGroup);
 
@@ -364,9 +369,10 @@ public class GUIMainPage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson       = new Gson();
-			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader          inputReader =
+					new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson        = new Gson();
+			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();

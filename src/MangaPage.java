@@ -53,12 +53,16 @@ public class MangaPage {
 										"/" +
 										relationship.attributes.fileName);
 				cover.setHeight(cover.getHeight() * image.getHeight() / image.getWidth());
-				cover.setFill(new ImagePattern(image));
+				if(image!=null)
+					cover.setFill(new ImagePattern(image));
+				else
+					cover.setFill(new ImagePattern(new Image("../Images/Image not Found.jpg")));
 			}
 		}
 
 		//Erstellt ein LAbel des japanischen Titels der normalerweise der standard Titel ist
 		Label title = new Label("No Title found");
+		title.setWrapText(true);
 		if(GUIMainPage.mangaObject.data.attributes.title.ja != null)
 			title = new Label(GUIMainPage.mangaObject.data.attributes.title.ja);
 		else if(GUIMainPage.mangaObject.data.attributes.title.en != null)
@@ -130,10 +134,14 @@ public class MangaPage {
 				HBox hBox         = new HBox();
 				hBox.setId("chapterBox");
 
-				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + chapter.attributes.title);
-				chapterTitle.setId("chapterTitle");
+				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + " - " + chapter.attributes.title);
+				chapterTitle.getStyleClass().addAll("chapterBoxContent");
+				chapterTitle.setId("chapterBoxTitle");
 
 				Label group = new Label("no group"), user = new Label("no uploader");
+				group.getStyleClass().addAll("chapterBoxContent");
+				user.getStyleClass().addAll("chapterBoxContent");
+
 				for(APICChaptersRelationships relation : chapter.relationships) {
 					if(relation.type.equals("scanlation_group"))
 						group = new Label(relation.attributes.name);
@@ -142,9 +150,11 @@ public class MangaPage {
 				}
 
 				Label createdAt = new Label(chapter.attributes.createdAt);
-				createdAt.setId("chapterInfo");
-				group.setId("chapterInfo");
-				user.setId("chapterInfo");
+				createdAt.setId("chapterBoxUpdatedAgo");
+				createdAt.getStyleClass().addAll("chapterBoxContent");
+
+
+
 
 				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);
 				hBox.onMouseClickedProperty();//TODO Open Chapter
