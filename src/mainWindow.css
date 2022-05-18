@@ -75,9 +75,17 @@
 
 #chapterBox{
 	-fx-background-color :#222222;
-	-fx-min-width       :800px;
-	-fx-max-width       :800px;
+	-fx-min-width        :800px;
+	-fx-max-width        :800px;
 	-fx-arc-height       :5;
 	-fx-arc-width        :5;
 	-fx-padding          :5;
+	}
+
+.scroll-pane{
+	-fx-background-color :transparent;
+	}
+
+.scroll-pane .viewport{
+	-fx-background-color :transparent;
 	}
