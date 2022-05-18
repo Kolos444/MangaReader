@@ -2,7 +2,6 @@ import APIChapterClasses.APIChapter;
 import APIChapterClasses.APIChapterListResponse;
 import APIChapterClasses.APIChapterRelationships;
 import APICustomListClasses.APISeasonalListResponse;
-import APIMangaClasses.APIManga;
 import APIMangaClasses.APIMangaListResponse;
 import CoverAbfrage.CoverAbfrage;
 import CoverAbfrage.CoverAbfrageData;
@@ -12,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -19,7 +19,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -27,12 +26,11 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GUIMainPage {
+public class HomePage {
 
 	//Singleton mit wichtigen Klassenübergreifenden Daten
 	public static MangaReaderSingleton singleton;
-	//Der derzeitig ausgewählte Manga
-	public static APIManga             mangaObject;
+	public static ScrollPane           homeNode;
 
 	public static Node buildMainGUIMainPage() throws IOException {
 
@@ -43,7 +41,9 @@ public class GUIMainPage {
 		getMangaLists();
 
 		//Gibt die Hauptanzeige der Anwendung zurück
-		return getStartPage();
+		homeNode           = new ScrollPane(getStartPage());
+		singleton.homePage = homeNode;
+		return homeNode;
 	}
 
 	//Erstellt ung gibt die Hauptanzeige zurück
@@ -52,7 +52,7 @@ public class GUIMainPage {
 		VBox allItems = new VBox();
 		allItems.getChildren().addAll(getSeasonalList(), getLatestUpdate(), getRecentlyAdded());
 
-		return allItems;
+		return new ScrollPane(allItems);
 	}
 
 	private static HBox getSeasonalList() {
@@ -76,7 +76,7 @@ public class GUIMainPage {
 		Chapter[] chapters = getLatestChapters();
 
 		//Überschrift
-		Text latestUpdatedSection = new Text("Latest Updates");
+		Label latestUpdatedSection = new Label("Latest Updates");
 		table.getChildren().add(latestUpdatedSection);
 
 		BorderPane[] borderPane = new BorderPane[6];
@@ -149,7 +149,8 @@ public class GUIMainPage {
 		vBox.getChildren().add(borderPane);
 		vBox.setOnMouseClicked(event -> {
 			try {
-				MangaPage.showManga(chapterData.id);
+				MangaPage.setManga(chapterData.id);
+				singleton.centerViewNode.setCenter(MangaPage.viewNode);
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -369,10 +370,9 @@ public class GUIMainPage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader          inputReader =
-					new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson        = new Gson();
-			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson       = new Gson();
+			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();

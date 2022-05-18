@@ -7,18 +7,18 @@ public class SetStages extends Application {
 	Stage primaryStage;
 
 	//Die Haupt GUI in der so ziemlich alles stattfindet
-	MainGUI mainGUI;
+	RootNode rootNode;
 	
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
-		mainGUI = new MainGUI();
+		rootNode          = new RootNode();
 		displayMainGUI();
 	}
 
 	//Setzt die Main GUI als angezeigte in der primaryStage
 	public void displayMainGUI(){
-		primaryStage = mainGUI.returnStage();
+		primaryStage = rootNode.returnStage();
 	}
 }

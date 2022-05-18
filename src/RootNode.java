@@ -13,45 +13,45 @@ import javafx.stage.StageStyle;
 import java.awt.*;
 import java.io.IOException;
 
-public class MainGUI {
+public class RootNode {
 
 	//Die primaryStage in der alles angezeigt wird
-	private final Stage mainGUI;
+	private final Stage stage;
 
 	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
 	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
 	private static double xOffset, yOffset;
-	private BorderPane mainBorder;
+	private BorderPane centerViewPane;
 
 	public Stage returnStage() {
-		return mainGUI;
+		return stage;
 	}
 
-	public MainGUI() throws IOException {
-		mainGUI = new Stage();
-		mainGUI.initStyle(StageStyle.UNDECORATED);
+	public RootNode() throws IOException {
+		stage = new Stage();
+		stage.initStyle(StageStyle.UNDECORATED);
 
-		singleton.mainWindow = new BorderPane();
+		singleton.rootNode = new BorderPane();
 
 		//Ermöglicht das Bewegen des Fensters (https://stackoverflow.com/a/18177792/19121944)
-		singleton.mainWindow.setOnMousePressed(event -> {
+		singleton.rootNode.setOnMousePressed(event -> {
 			xOffset = event.getSceneX();
 			yOffset = event.getSceneY();
 		});
-		singleton.mainWindow.setOnMouseDragged(event -> {
-			mainGUI.setX(event.getScreenX() - xOffset);
-			mainGUI.setY(event.getScreenY() - yOffset);
+		singleton.rootNode.setOnMouseDragged(event -> {
+			stage.setX(event.getScreenX() - xOffset);
+			stage.setY(event.getScreenY() - yOffset);
 		});
 
-		Scene scene = new Scene(singleton.mainWindow);
+		Scene scene = new Scene(singleton.rootNode);
 		scene.getStylesheets().addAll(getClass().getResource("mainWindow.css").toExternalForm(),
 									  getClass().getResource("mainMenu.css").toExternalForm());
 
-		singleton.mainWindow.setTop(buildMainWindowTop());
-		singleton.mainWindow.setCenter(buildMainWindowCenter());
+		singleton.rootNode.setTop(buildMainWindowTop());
+		singleton.rootNode.setCenter(buildMainWindowCenter());
 
-		mainGUI.setScene(scene);
-		mainGUI.show();
+		stage.setScene(scene);
+		stage.show();
 	}
 
 	private Node buildMainWindowTop() {
@@ -87,7 +87,9 @@ public class MainGUI {
 
 	private MenuItem buildMangaStandard() {
 		MenuItem standard = new MenuItem("Manga");
-		standard.setOnAction(event -> {});
+		standard.setOnAction(event -> {
+			singleton.centerViewNode.setCenter(HomePage.homeNode);
+		});
 		return standard;
 	}
 
@@ -144,19 +146,19 @@ public class MainGUI {
 	}
 
 	private Node buildMainWindowCenter() throws IOException {
-		mainBorder = new BorderPane();
+		centerViewPane = new BorderPane();
 
-		mainBorder.setMinHeight(680);
-		mainBorder.setMinWidth(1280);
+		centerViewPane.setMinHeight(680);
+		centerViewPane.setMinWidth(1280);
 
-		singleton.width  = mainBorder.getMinWidth();
-		singleton.height = mainBorder.getMinHeight();
+		singleton.width  = centerViewPane.getMinWidth();
+		singleton.height = centerViewPane.getMinHeight();
 
-		mainBorder.setCenter(GUIMainPage.buildMainGUIMainPage());
+		centerViewPane.setCenter(HomePage.buildMainGUIMainPage());
 
-		singleton.mainBorder = mainBorder;
+		singleton.centerViewNode = centerViewPane;
 
-		return mainBorder;
+		return centerViewPane;
 	}
 
 

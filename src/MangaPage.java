@@ -19,16 +19,24 @@ import java.net.HttpURLConnection;
 
 public class MangaPage {
 
-	static APIManga mangaObject;
+	static APIManga   mangaObject;
+	static ScrollPane viewNode;
 
-	static void showManga(String id) throws IOException {
+	public MangaPage() throws IOException {
+		setManga("6b958848-c885-4735-9201-12ee77abcb3c");
+	}
+
+	static void setManga(String id) throws IOException {
+
+		//Fals der gewünschte Manga schon geladen ist wird direkt returned
+		if(mangaObject!=null)
+			if(id.equals(mangaObject.data.id))
+				return;
+
 		mangaObject         = getMangaObject(id);
 		VBox mangaPage = new VBox();
 		mangaPage.getChildren().addAll(buildMangaTop(), buildMangaChapters());
-		ScrollPane scrollPane = new ScrollPane(mangaPage);
-
-		GUIMainPage.singleton.mainWindow.setCenter(scrollPane);
-
+		viewNode = new ScrollPane(mangaPage);
 	}
 
 	public static Node buildMangaTop() {
@@ -131,7 +139,7 @@ public class MangaPage {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			Gson           gson        = new Gson();
 			APIChaptersResponse chaptersResponse =
-					gson.fromJson(GUIMainPage.filterGsonExceptions(inputReader), APIChaptersResponse.class);
+					gson.fromJson(HomePage.filterGsonExceptions(inputReader), APIChaptersResponse.class);
 
 			for(APIChaptersData chapter : chaptersResponse.data) {
 				HBox hBox         = new HBox();

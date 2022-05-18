@@ -3,74 +3,74 @@
 *{
 	-fx-font-family :ubuntu, sans-serif;
 	
-	}
+}
 
 .root{
 	-fx-background-color :#272A2F;
-	}
+}
 
 #navBar{
 	-fx-background-color :#2A2F33;
-	}
+}
 
 .text-field{
 	-fx-background-color :#24282B;
 	-fx-text-fill        :#DEDEDE;
 	-fx-font-size        :16;
-	}
+}
 
 #searchButton{
 	-fx-background-color :#48494B;
 	-fx-text-fill        :#94999D;
-	}
+}
 
 .label{
 	-fx-text-fill :#DEDEDE;
 	-fx-font-size :14;
 	
-	}
+}
 
 #latestUpdateTitle{
 	-fx-font-size   :16;
 	-fx-font-weight :bold;
-	}
+}
 
 #latestUpdateChapterTitle{
 	-fx-font-size :14;
-	}
+}
 
 #latestUpdateGroup{
 	-fx-font-size :12;
 	
-	}
+}
 
 #latestUpdateUpdatedAgo{
 	-fx-font-size :12;
 	
-	}
+}
 
 #mangaTitle{
 	-fx-font-size   :50;
 	-fx-font-weight :bold;
 	-fx-text-fill   :#FFFFFF;
-	}
+}
 
 .chapterBoxContent{
 	-fx-text-fill :#DDDDDD;
 	-fx-font-size :10;
 	-fx-min-width :200;
 	-fx-max-width :200;
-	}
+}
 
 #chapterBoxTitle{
 	-fx-min-width   :350;
 	-fx-max-width   :350;
 	-fx-font-weight :bold;
-	}
+}
 
 #chapterBoxUpdatedAgo{
 	-fx-alignment :center-right;
-	}
+}
 
 
 #chapterBox{
@@ -80,12 +80,12 @@
 	-fx-arc-height       :5;
 	-fx-arc-width        :5;
 	-fx-padding          :5;
-	}
+}
 
 .scroll-pane{
 	-fx-background-color :transparent;
-	}
+}
 
 .scroll-pane .viewport{
 	-fx-background-color :transparent;
-	}
+}
