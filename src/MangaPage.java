@@ -29,11 +29,11 @@ public class MangaPage {
 	static void setManga(String id) throws IOException {
 
 		//Fals der gewünschte Manga schon geladen ist wird direkt returned
-		if(mangaObject!=null)
+		if(mangaObject != null)
 			if(id.equals(mangaObject.data.id))
 				return;
 
-		mangaObject         = getMangaObject(id);
+		mangaObject = getMangaObject(id);
 		VBox mangaPage = new VBox();
 		mangaPage.getChildren().addAll(buildMangaTop(), buildMangaChapters());
 		viewNode = new ScrollPane(mangaPage);
@@ -60,11 +60,10 @@ public class MangaPage {
 		//Sucht das Cover Bild und speichert es im Rechteck
 		for(APIMangaListRelationships relationship : mangaObject.data.relationships) {
 			if(relationship.type.equals("cover_art")) {
-				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id +
-										"/" +
+				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
 										relationship.attributes.fileName);
 				cover.setHeight(cover.getHeight() * image.getHeight() / image.getWidth());
-				if(image!=null)
+				if(image != null)
 					cover.setFill(new ImagePattern(image));
 				else
 					cover.setFill(new ImagePattern(new Image("../Images/Image not Found.jpg")));
@@ -121,7 +120,7 @@ public class MangaPage {
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			Gson           gson        = new Gson();
-			return gson.fromJson(inputReader, APIManga.class);
+			return gson.fromJson(HomePage.filterGsonExceptions(inputReader), APIManga.class);
 		}
 		return null;
 	}
@@ -142,8 +141,11 @@ public class MangaPage {
 					gson.fromJson(HomePage.filterGsonExceptions(inputReader), APIChaptersResponse.class);
 
 			for(APIChaptersData chapter : chaptersResponse.data) {
-				HBox hBox         = new HBox();
+				HBox hBox = new HBox();
 				hBox.setId("chapterBox");
+				hBox.setOnMouseClicked(event -> {
+					ReadManga.open(chapter.id);
+				});
 
 				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + " - " + chapter.attributes.title);
 				chapterTitle.getStyleClass().addAll("chapterBoxContent");
@@ -165,13 +167,11 @@ public class MangaPage {
 				createdAt.getStyleClass().addAll("chapterBoxContent");
 
 
-
-
 				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);
 				hBox.onMouseClickedProperty();//TODO Open Chapter
 				HBox placeholder = new HBox();
 				placeholder.setMinHeight(5.0d);
-				back.getChildren().addAll(hBox,placeholder);
+				back.getChildren().addAll(hBox, placeholder);
 			}
 		}
 		return back;

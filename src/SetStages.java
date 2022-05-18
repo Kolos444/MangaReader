@@ -4,16 +4,16 @@ import javafx.stage.Stage;
 public class SetStages extends Application {
 
 	//Die Kern-Stage in der alles dargestellt wird
-	Stage primaryStage;
+	public static Stage primaryStage;
 
 	//Die Haupt GUI in der so ziemlich alles stattfindet
 	RootNode rootNode;
-	
+
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		this.primaryStage = primaryStage;
-		rootNode          = new RootNode();
+		SetStages.primaryStage = primaryStage;
+		rootNode               = new RootNode();
 		displayMainGUI();
 	}
 

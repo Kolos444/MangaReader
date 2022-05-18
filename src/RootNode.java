@@ -16,7 +16,7 @@ import java.io.IOException;
 public class RootNode {
 
 	//Die primaryStage in der alles angezeigt wird
-	private final Stage stage;
+	public static Stage stage;
 
 	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
 	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
