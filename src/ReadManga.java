@@ -29,10 +29,10 @@ public class ReadManga {
 	public static void initializeReadManga() {
 		readerStage = new Stage();
 		readerStage.initStyle(StageStyle.UNDECORATED);
-		readerStage.setFullScreen(true);
+		//readerStage.setFullScreen(true);
 
-		ImageView  imageLeft  = new ImageView("file:../../Images/Image not Found.jpg");
-		ImageView  imageRight = new ImageView("file:../../Images/Image not Found.jpg");
+		ImageView  imageLeft  = new ImageView("file:Images/Image not Found.jpg");
+		ImageView  imageRight = new ImageView("file:Images/Image not Found.jpg");
 		BorderPane coreBorder = new BorderPane(new HBox(imageLeft, imageRight));
 		coreBorder.setRight(buildCloseButton());
 		HBox root = new HBox(coreBorder);
@@ -42,7 +42,11 @@ public class ReadManga {
 
 	private static Rectangle buildCloseButton() {
 		Rectangle X = new Rectangle();
-		X.setFill(new ImagePattern(new Image("file:../../Images/X.png")));
+
+		Image image = new Image("file:Images/X.png");
+		ImagePattern value = new ImagePattern(image);
+		X.setFill(value);
+
 		X.setOnMouseClicked(event -> closeReader());
 		return X;
 	}
@@ -87,7 +91,7 @@ public class ReadManga {
 			Gson gson = new Gson();
 			apiChapterHash = gson.fromJson(reader, APIChapterHash.class);
 		}else
-			return (new Image[]{new Image("file:../../Images/Image not Found.jpg")});
+			return (new Image[]{new Image("file:Images/Image not Found.jpg")});
 
 		for(int i = 0; i < apiChapter.data.attributes.pages; i++) {
 			connection = HTTP.getHttpResponse(apiChapterHash.baseUrl + apiChapterHash.chapter.data[i], "GET");

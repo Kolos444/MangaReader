@@ -107,7 +107,7 @@ public class HomePage {
 		if(chapterData.mangaCover != null)
 			rectangle.setFill(new ImagePattern(chapterData.mangaCover));
 		else
-			rectangle.setFill(new ImagePattern(new Image("../Images/Image not Found.jpg")));
+			rectangle.setFill(new ImagePattern(new Image("file:Images/Image not Found.jpg")));
 
 		Group rectangleGroup = new Group(rectangle);
 		borderPane.setLeft(rectangleGroup);

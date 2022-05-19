@@ -66,7 +66,7 @@ public class MangaPage {
 				if(image != null)
 					cover.setFill(new ImagePattern(image));
 				else
-					cover.setFill(new ImagePattern(new Image("../Images/Image not Found.jpg")));
+					cover.setFill(new ImagePattern(new Image("file:Images/Image not Found.jpg")));
 			}
 		}
 
