@@ -144,7 +144,11 @@ public class MangaPage {
 				HBox hBox = new HBox();
 				hBox.setId("chapterBox");
 				hBox.setOnMouseClicked(event -> {
-					ReadManga.open(chapter.id);
+					try {
+						ReadManga.open(chapter.id);
+					} catch(IOException e) {
+						throw new RuntimeException(e);
+					}
 				});
 
 				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + " - " + chapter.attributes.title);

@@ -52,6 +52,7 @@ public class RootNode {
 
 		stage.setScene(scene);
 		stage.show();
+		ReadManga.initializeReadManga();
 	}
 
 	private Node buildMainWindowTop() {

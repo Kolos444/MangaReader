@@ -3,9 +3,9 @@ import APIChapterClasses.APIChapterListResponse;
 import APIChapterClasses.APIChapterRelationships;
 import APICustomListClasses.APISeasonalListResponse;
 import APIMangaClasses.APIMangaListResponse;
-import CoverAbfrage.CoverAbfrage;
-import CoverAbfrage.CoverAbfrageData;
-import CoverAbfrage.CoverAbfrageDataRelationships;
+import CoverRequests.CoverRequests;
+import CoverRequests.CoverRequestsData;
+import CoverRequests.CoverRequestsDataRelationships;
 import com.google.gson.Gson;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -160,7 +160,12 @@ public class HomePage {
 		return vBox;
 	}
 
-	//Wandelt die API Kapitel Daten aus dem Singleton in die nutzbare Kapitel-Klasse um und gibt dies als Array zurück
+	/**
+	 *Wandelt die API Kapitel Daten aus dem Singleton in die nutzbare Kapitel-Klasse um und gibt dies als Array zurück
+
+	 * @return Gibt die zuletzt aktualisierten Kapitel in einem Chapter Array zurück
+	 * @throws IOException
+	 */
 	private static Chapter[] getLatestChapters() throws IOException {
 
 		//Eine Kapitel-Liste mit den letztlich zurückgegebenen Daten
@@ -280,8 +285,8 @@ public class HomePage {
 
 			//Wandelt den erhaltenen JSON Text in ein nutzbares Objekt um
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson           gson        = new Gson();
-			CoverAbfrage   mangaArray  = gson.fromJson(inputReader, CoverAbfrage.class);
+			Gson          gson       = new Gson();
+			CoverRequests mangaArray = gson.fromJson(inputReader, CoverRequests.class);
 
 			//Ändert die größe des Arrays da durch Filterung manche Mangas nicht angezeigt werden
 			//ids = new String[mangaArray.total];
@@ -289,10 +294,10 @@ public class HomePage {
 			int i = 0;
 			//Geht über jeden einzelnen Manga
 			for(int j = 0; j < ids.length; j++) {
-				for(CoverAbfrageData data : mangaArray.data) {
+				for(CoverRequestsData data : mangaArray.data) {
 					if(data.id.equals(ids[j])) {
 						//Sucht nach dem gewünschten Cover_art Relationship
-						for(CoverAbfrageDataRelationships relationshipsAttributes : data.relationships) {
+						for(CoverRequestsDataRelationships relationshipsAttributes : data.relationships) {
 							if(relationshipsAttributes.type.equals("cover_art")) {
 								//Das Array wird mit den ids der Mangas und dessen Dateinamen bestückt
 								ids[j] += "/" + relationshipsAttributes.attributes.fileName + ".512.jpg";
