@@ -89,3 +89,7 @@
 .scroll-pane .viewport{
 	-fx-background-color :transparent;
 }
+
+#readerCoreBorder{
+	-fx-background-color: #272A2F;
+}

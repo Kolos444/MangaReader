@@ -40,8 +40,12 @@ public class HomePage {
 		//Updated die im Singleton Manga Listen mit den neusten, zuletzt aktualisierten und saisonal Mangas
 		getMangaLists();
 
+
 		//Gibt die Hauptanzeige der Anwendung zurück
-		homeNode           = new ScrollPane(getStartPage());
+
+		//TODO ab dieser Methode wird die setFillcolor der Fullscreen Scene ignoriert
+		homeNode = new ScrollPane(getStartPage());
+
 		singleton.homePage = homeNode;
 		return homeNode;
 	}
@@ -50,6 +54,7 @@ public class HomePage {
 	public static Node getStartPage() throws IOException {
 
 		VBox allItems = new VBox();
+
 		allItems.getChildren().addAll(getSeasonalList(), getLatestUpdate(), getRecentlyAdded());
 
 		return new ScrollPane(allItems);
@@ -161,10 +166,11 @@ public class HomePage {
 	}
 
 	/**
-	 *Wandelt die API Kapitel Daten aus dem Singleton in die nutzbare Kapitel-Klasse um und gibt dies als Array zurück
+	 Wandelt die API Kapitel Daten aus dem Singleton in die nutzbare Kapitel-Klasse um und gibt dies als Array zurück
 
-	 * @return Gibt die zuletzt aktualisierten Kapitel in einem Chapter Array zurück
-	 * @throws IOException
+	 @return Gibt die zuletzt aktualisierten Kapitel in einem Chapter Array zurück
+
+	 @throws IOException
 	 */
 	private static Chapter[] getLatestChapters() throws IOException {
 
@@ -285,8 +291,8 @@ public class HomePage {
 
 			//Wandelt den erhaltenen JSON Text in ein nutzbares Objekt um
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson          gson       = new Gson();
-			CoverRequests mangaArray = gson.fromJson(inputReader, CoverRequests.class);
+			Gson           gson        = new Gson();
+			CoverRequests  mangaArray  = gson.fromJson(inputReader, CoverRequests.class);
 
 			//Ändert die größe des Arrays da durch Filterung manche Mangas nicht angezeigt werden
 			//ids = new String[mangaArray.total];
@@ -375,9 +381,10 @@ public class HomePage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson       = new Gson();
-			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader          inputReader =
+					new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson        = new Gson();
+			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();

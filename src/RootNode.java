@@ -28,6 +28,7 @@ public class RootNode {
 	}
 
 	public RootNode() throws IOException {
+
 		stage = new Stage();
 		stage.initStyle(StageStyle.UNDECORATED);
 
@@ -44,19 +45,24 @@ public class RootNode {
 		});
 
 		Scene scene = new Scene(singleton.rootNode);
+
+
 		scene.getStylesheets().addAll(getClass().getResource("mainWindow.css").toExternalForm(),
 									  getClass().getResource("mainMenu.css").toExternalForm());
 
+
+		ReadManga.initializeReadManga();
 		singleton.rootNode.setTop(buildMainWindowTop());
 		singleton.rootNode.setCenter(buildMainWindowCenter());
 
 		stage.setScene(scene);
 		stage.show();
-		ReadManga.initializeReadManga();
 	}
 
-	private Node buildMainWindowTop() {
+	private Node buildMainWindowTop() throws IOException {
+
 		BorderPane navigationBar = new BorderPane();
+
 		navigationBar.setCenter(buildNavbarOptions());
 		navigationBar.setLeft(buildNavbarLogo());
 		navigationBar.setRight(buildMangaSearch());
@@ -67,14 +73,17 @@ public class RootNode {
 		return navigationBar;
 	}
 
-	private Node buildNavbarOptions() {
+	private Node buildNavbarOptions() throws IOException {
 		HBox hBox = new HBox();
 		hBox.getChildren().addAll(buildMangaMenu());
 		return hBox;
 	}
 
-	private Node buildMangaMenu() {
+	private Node buildMangaMenu() throws IOException {
+
+		//TODO Nachdem navBar erstellt wurde funktioniert setFill nicht mehr
 		MenuBar navBar = new MenuBar();
+
 		navBar.getMenus().addAll(getMenuManga(), getMenuFollowed(), getMenuRandom());
 		navBar.setMinHeight(40);
 		return navBar;
@@ -147,6 +156,7 @@ public class RootNode {
 	}
 
 	private Node buildMainWindowCenter() throws IOException {
+
 		centerViewPane = new BorderPane();
 
 		centerViewPane.setMinHeight(680);

@@ -12,6 +12,8 @@ public class SetStages extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+
+
 		SetStages.primaryStage = primaryStage;
 		rootNode               = new RootNode();
 		displayMainGUI();
