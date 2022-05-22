@@ -50,7 +50,8 @@ public class RootNode {
 		scene.getStylesheets()
 			 .addAll(Objects.requireNonNull(getClass().getResource("CSS/MainWindow.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/NavBar.css")).toExternalForm(),
-					 Objects.requireNonNull(getClass().getResource("CSS/SeasonalManga.css")).toExternalForm());
+					 Objects.requireNonNull(getClass().getResource("CSS/SeasonalManga.css")).toExternalForm(),
+					 Objects.requireNonNull(getClass().getResource("CSS/mangaPage.css")).toExternalForm());
 
 
 		ReadManga.initializeReadManga();

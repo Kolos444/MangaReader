@@ -68,13 +68,11 @@ public class MangaPage {
 
 		//Erstellt ein LAbel des japanischen Titels der normalerweise der standard Titel ist
 		Label title = new Label("No Title found");
-		title.setMaxWidth(1000.0d);
-		title.setWrapText(true);
 		if(mangaObject.data.attributes.title.ja != null)
 			title = new Label(mangaObject.data.attributes.title.ja);
 		else if(mangaObject.data.attributes.title.en != null)
 			title = new Label(mangaObject.data.attributes.title.en);
-		title.setId("mangaTitle");
+		title.getStyleClass().add("mangaTitle");
 
 		//Erstellt ein Label des englischen Titels
 		Label englishTitle = new Label("No english Title found");
@@ -83,10 +81,10 @@ public class MangaPage {
 			englishTitle.setId("mangaEnglishTitle");
 		}
 
-		//Es gibt einen fehler bei dem Attributes speziell bei Author und Artist nicht initialsiert wird obwohl das
+		//Es gibt einen fehler bei dem Attributes speziell bei Author und Artist nicht initialisiert wird obwohl das
 		// gleiche bei cover_art möglich ist
 		/*
-				//Sucht alle Authoren und Künstler raus und speichert sie in einem Label
+				//Sucht alle Autoren und Künstler raus und speichert sie in einem Label
 				StringBuilder peopleString = new StringBuilder();
 				for(APIMangaListRelationships relationship: mangaObject.data.relationships) {
 					if(relationship.type.equals("author")||relationship.type.equals("artist"))
@@ -96,7 +94,7 @@ public class MangaPage {
 				Label people = new Label(peopleString.toString());*/
 
 
-		back.getChildren().addAll(cover, new VBox(title, englishTitle/*,people*/,buildMangaDescription()));
+		back.getChildren().addAll(cover, new VBox(title, englishTitle/*,people*/, buildMangaDescription()));
 		return back;
 	}
 
@@ -140,7 +138,7 @@ public class MangaPage {
 
 			for(APIChaptersData chapter : chaptersResponse.data) {
 				HBox hBox = new HBox();
-				hBox.setId("chapterBox");
+				hBox.getStyleClass().add("chapterBox");
 				hBox.setOnMouseClicked(event -> {
 					try {
 						ReadManga.open(chapter.id);
@@ -151,7 +149,7 @@ public class MangaPage {
 
 				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + " - " + chapter.attributes.title);
 				chapterTitle.getStyleClass().addAll("chapterBoxContent");
-				chapterTitle.setId("chapterBoxTitle");
+				chapterTitle.getStyleClass().add("chapterBoxTitle");
 
 				Label group = new Label("no group"), user = new Label("no uploader");
 				group.getStyleClass().addAll("chapterBoxContent");
@@ -165,7 +163,7 @@ public class MangaPage {
 				}
 
 				Label createdAt = new Label(chapter.attributes.createdAt);
-				createdAt.setId("chapterBoxUpdatedAgo");
+				createdAt.getStyleClass().add("chapterBoxUpdatedAgo");
 				createdAt.getStyleClass().add("chapterBoxContent");
 
 

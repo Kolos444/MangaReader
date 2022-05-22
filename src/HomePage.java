@@ -59,9 +59,7 @@ public class HomePage {
 	//Erstellt ung gibt die Hauptanzeige zurück
 	public static Node getStartPage() throws IOException {
 
-		VBox allItems = new VBox();
-
-		allItems.getChildren().addAll(getSeasonalList(), getLatestUpdate(), getRecentlyAdded());
+		VBox allItems = new VBox(getSeasonalList(), getLatestUpdate(), getRecentlyAdded());
 
 		return new ScrollPane(allItems);
 	}
@@ -178,7 +176,6 @@ public class HomePage {
 
 	 @return Gibt die zuletzt aktualisierten Kapitel in einem Chapter Array zurück
 
-	 @throws IOException
 	 */
 	private static Chapter[] getLatestChapters() throws IOException {
 
@@ -390,10 +387,9 @@ public class HomePage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader          inputReader =
-					new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson        = new Gson();
-			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson       = new Gson();
+			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();
@@ -433,15 +429,13 @@ public class HomePage {
 	private static HBox buildSeasonalNode(APIManga manga) {
 
 
-		Image         cover    = manga.data.cover;
-		PixelReader   reader   = cover.getPixelReader();
-		double        width    = cover.getWidth();
-		double        height    = cover.getHeight();
-		WritableImage newImage = new WritableImage(reader,
-												   (int)(width  / 2 - 0.40789473 * height / 2),
-												   0,
-												   (int)(0.40789473 * height),
-												   (int)height);
+		Image       cover  = manga.data.cover;
+		PixelReader reader = cover.getPixelReader();
+		double      width  = cover.getWidth();
+		double      height = cover.getHeight();
+		WritableImage newImage =
+				new WritableImage(reader, (int)(width / 2 - 0.40789473 * height / 2), 0, (int)(0.40789473 * height),
+								  (int)height);
 
 		ImageView seasonalCover = new ImageView(newImage);
 		seasonalCover.setFitWidth(93.0d);
@@ -469,7 +463,14 @@ public class HomePage {
 
 		HBox seasonalNode = new HBox(seasonalCover, seasonalText);
 		seasonalNode.getStyleClass().add("seasonalNodes");
-
+		seasonalNode.setOnMouseClicked(event -> {
+			try {
+				MangaPage.setManga(manga.data.id);
+				singleton.centerViewNode.setCenter(MangaPage.viewNode);
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 
 		return seasonalNode;
 	}
