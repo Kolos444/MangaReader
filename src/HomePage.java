@@ -18,6 +18,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -388,9 +390,10 @@ public class HomePage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson       = new Gson();
-			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader          inputReader =
+					new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson        = new Gson();
+			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();
@@ -421,16 +424,28 @@ public class HomePage {
 
 		HBox hBox = new HBox();
 		for(APIManga manga : mangas) {
-			hBox.getChildren().add(buildSeasonalNode(manga));
+			if(manga.data.cover != null)
+				hBox.getChildren().add(buildSeasonalNode(manga));
 		}
 		return hBox;
 	}
 
 	private static HBox buildSeasonalNode(APIManga manga) {
 
-		ImageView seasonalCover = new ImageView(manga.data.cover);
+
+		Image         cover    = manga.data.cover;
+		PixelReader   reader   = cover.getPixelReader();
+		double        width    = cover.getWidth();
+		double        height    = cover.getHeight();
+		WritableImage newImage = new WritableImage(reader,
+												   (int)(width  / 2 - 0.40789473 * height / 2),
+												   0,
+												   (int)(0.40789473 * height),
+												   (int)height);
+
+		ImageView seasonalCover = new ImageView(newImage);
 		seasonalCover.setFitWidth(93.0d);
-		seasonalCover.setFitHeight(228.0d);
+		seasonalCover.setFitHeight(230.0d);
 		seasonalCover.getStyleClass().add("seasonalCovers");
 
 		Label seasonalTitle = new Label("Unknown Title");
@@ -454,6 +469,7 @@ public class HomePage {
 
 		HBox seasonalNode = new HBox(seasonalCover, seasonalText);
 		seasonalNode.getStyleClass().add("seasonalNodes");
+
 
 		return seasonalNode;
 	}

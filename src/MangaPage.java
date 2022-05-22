@@ -40,11 +40,7 @@ public class MangaPage {
 	}
 
 	public static Node buildMangaTop() {
-		VBox back = new VBox();
-		back.getChildren().addAll(buildMangaPresentation(), buildMangaDescription());
-
-
-		return back;
+		return buildMangaPresentation();
 	}
 
 	private static Node buildMangaPresentation() {
@@ -100,17 +96,18 @@ public class MangaPage {
 				Label people = new Label(peopleString.toString());*/
 
 
-		back.getChildren().addAll(cover, new VBox(title, englishTitle/*,people*/));
+		back.getChildren().addAll(cover, new VBox(title, englishTitle/*,people*/,buildMangaDescription()));
 		return back;
 	}
 
 	private static Node buildMangaDescription() {
 		VBox back = new VBox();
 
-		//javafx.scene.control.TextArea description =
-		//TODO Kommenntar entfernen		new javafx.scene.control.TextArea(mangaObject.data.attributes.description.en);
+		Label description = new Label(mangaObject.data.attributes.description.en);
+		description.setWrapText(true);
+		description.setMaxWidth(1000.0d);
 
-		//back.getChildren().add(description);
+		back.getChildren().add(description);
 
 		return back;
 	}
