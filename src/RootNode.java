@@ -12,6 +12,7 @@ import javafx.stage.StageStyle;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Objects;
 
 public class RootNode {
 
@@ -21,7 +22,6 @@ public class RootNode {
 	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
 	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
 	private static double xOffset, yOffset;
-	private BorderPane centerViewPane;
 
 	public Stage returnStage() {
 		return stage;
@@ -47,11 +47,15 @@ public class RootNode {
 		Scene scene = new Scene(singleton.rootNode);
 
 
-		scene.getStylesheets().addAll(getClass().getResource("mainWindow.css").toExternalForm(),
-									  getClass().getResource("mainMenu.css").toExternalForm());
+		scene.getStylesheets()
+			 .addAll(Objects.requireNonNull(getClass().getResource("CSS/MainWindow.css")).toExternalForm(),
+					 Objects.requireNonNull(getClass().getResource("CSS/NavBar.css")).toExternalForm(),
+					 Objects.requireNonNull(getClass().getResource("CSS/SeasonalManga.css")).toExternalForm());
 
 
 		ReadManga.initializeReadManga();
+		//Zum Debuggen
+		//ReadManga.open("49796b86-fe90-4509-94d6-3044141e494d");
 		singleton.rootNode.setTop(buildMainWindowTop());
 		singleton.rootNode.setCenter(buildMainWindowCenter());
 
@@ -157,19 +161,22 @@ public class RootNode {
 
 	private Node buildMainWindowCenter() throws IOException {
 
-		centerViewPane = new BorderPane();
+		BorderPane centerViewPane = new BorderPane();
 
 		centerViewPane.setMinHeight(680);
+		centerViewPane.setMaxHeight(680);
 		centerViewPane.setMinWidth(1280);
+		centerViewPane.setMaxWidth(1280);
 
 		singleton.width  = centerViewPane.getMinWidth();
 		singleton.height = centerViewPane.getMinHeight();
 
-		centerViewPane.setCenter(HomePage.buildMainGUIMainPage());
+		HomePage.buildMainGUIMainPage();
+
+		centerViewPane.setCenter(singleton.homePage);
 
 		singleton.centerViewNode = centerViewPane;
-
-		return centerViewPane;
+		return  centerViewPane;
 	}
 
 

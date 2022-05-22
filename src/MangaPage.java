@@ -72,6 +72,7 @@ public class MangaPage {
 
 		//Erstellt ein LAbel des japanischen Titels der normalerweise der standard Titel ist
 		Label title = new Label("No Title found");
+		title.setMaxWidth(1000.0d);
 		title.setWrapText(true);
 		if(mangaObject.data.attributes.title.ja != null)
 			title = new Label(mangaObject.data.attributes.title.ja);
@@ -99,7 +100,7 @@ public class MangaPage {
 				Label people = new Label(peopleString.toString());*/
 
 
-		back.getChildren().addAll(cover, title, englishTitle/*,people*/);
+		back.getChildren().addAll(cover, new VBox(title, englishTitle/*,people*/));
 		return back;
 	}
 
@@ -168,7 +169,7 @@ public class MangaPage {
 
 				Label createdAt = new Label(chapter.attributes.createdAt);
 				createdAt.setId("chapterBoxUpdatedAgo");
-				createdAt.getStyleClass().addAll("chapterBoxContent");
+				createdAt.getStyleClass().add("chapterBoxContent");
 
 
 				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);

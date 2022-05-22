@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -20,67 +21,182 @@ import java.net.HttpURLConnection;
 
 public class ReadManga {
 
-	private static Stage     readerStage;
-	private static ImageView imageLeft;
-	private static ImageView imageRight;
-	private static Image[] pages;
+	private static Stage  readerStage;
+	private static String imageBaseUrl, chapterHash;
+	private static ImageView imageLeft, imageRight;
+	private static int indexRight, indexLeft, loadedPages, maxPages;
+	private static boolean  offset;
+	private static Image[]  pages;
+	private static String[] pagePath;
 
 	public static void open(String id) throws IOException {
 		readerStage.show();
 		RootNode.stage.hide();
-		
-		activateHotkeys();
+
 		openChapter(id);
 	}
 
-	private static void activateHotkeys() {
+	public static void initializeReadManga() {
 
+		prepareStage();
+
+		prepareImageViews();
+
+		readerStage.setScene(prepareScene());
 	}
 
-	public static void initializeReadManga() {
-		readerStage = new Stage();
-		readerStage.initStyle(StageStyle.UNDECORATED);
-
-		imageLeft = new ImageView("file:Images/Image not Found.jpg");
-		imageLeft.setPreserveRatio(true);
-		imageLeft.setFitHeight(1080.0d);
-		imageRight = new ImageView("file:Images/Image not Found.jpg");
-		imageRight.setPreserveRatio(true);
-		imageRight.setFitHeight(1080.0d);
-
+	private static Scene prepareScene() {
 		BorderPane coreBorder = new BorderPane(new HBox(imageLeft, imageRight));
 		coreBorder.setRight(buildCloseButton());
 
 		HBox hBox = new HBox(coreBorder);
 		hBox.setAlignment(Pos.CENTER);
+
 		Scene scene = new Scene(hBox);
-
-		//SetFill funktioniert völlig random, nach dem eine bestimme menuBar und VBox erstellt wurden, nicht mehr.
+		scene.setOnKeyPressed(event -> {
+			try {
+				hotkey(event.getCode());
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		//Fill funktioniert völlig random, nach dem eine bestimme menuBar und VBox erstellt wurden, nicht mehr.
 		scene.setFill(Color.BLACK);
+		return scene;
+	}
 
+	private static void hotkey(KeyCode character) throws IOException {
+
+		switch(character) {
+			case LEFT:
+				if(indexRight - 2 >= 0) {
+					imageLeft.setVisible(true);
+
+					imageLeft.setImage(pages[indexLeft - 2]);
+					imageRight.setImage(pages[indexRight - 2]);
+
+					indexLeft -= 2;
+					indexRight -= 2;
+				} else if(indexLeft - 2 >= 0) {
+					imageRight.setVisible(false);
+
+					imageLeft.setImage(pages[indexLeft - 2]);
+
+					indexLeft -= 2;
+					indexRight -= 2;
+				}
+				break;
+			case RIGHT:
+				if(indexLeft + 2 < maxPages) {
+					imageRight.setVisible(true);
+
+					imageLeft.setImage(pages[indexLeft + 2]);
+					imageRight.setImage(pages[indexRight + 2]);
+
+					indexLeft += 2;
+					indexRight += 2;
+				} else if(indexRight + 2 < maxPages) {
+					imageLeft.setVisible(false);
+
+					imageRight.setImage(pages[indexRight + 2]);
+
+					indexLeft += 2;
+					indexRight += 2;
+				} else if(indexRight + 2 >= maxPages) {
+
+					//TODO nächstes Kapitel öffnen
+					//nextChapter();
+				}
+
+				//TODO Herausfinden warum die Bilder sich nicht aktualisieren bevor die folgende Methode ausgeführt
+				// wird
+				if(loadedPages < maxPages)
+					loadPages(3);
+				break;
+			case O:
+				if(!offset) {
+					if(indexLeft + 1 < maxPages) {
+						imageLeft.setVisible(true);
+
+						imageLeft.setImage(pages[indexLeft + 1]);
+						imageRight.setImage(pages[indexRight + 1]);
+
+						indexLeft++;
+						indexRight++;
+
+						offset = true;
+					} else if(indexRight + 1 < maxPages) {
+						imageLeft.setVisible(false);
+
+						imageRight.setImage(pages[indexRight + 1]);
+
+						indexLeft++;
+						indexRight++;
+
+						offset = true;
+					}
+				} else {
+					if(indexRight - 1 >= 0) {
+						imageRight.setVisible(true);
+
+						imageLeft.setImage(pages[indexLeft - 1]);
+						imageRight.setImage(pages[indexRight - 1]);
+
+						indexLeft--;
+						indexRight--;
+
+						offset = false;
+					} else if(indexLeft - 1 >= 0) {
+						imageRight.setVisible(false);
+
+						imageLeft.setImage(pages[indexLeft - 1]);
+
+						indexLeft--;
+						indexRight--;
+
+						offset = false;
+					}
+				}
+				break;
+		}
+	}
+
+	private static void prepareStage() {
+		readerStage = new Stage();
+		readerStage.initStyle(StageStyle.UNDECORATED);
 		readerStage.setFullScreen(true);
-		readerStage.setScene(scene);
+	}
+
+	private static void prepareImageViews() {
+		imageLeft  = new ImageView("file:Images/Image not Found.jpg");
+		imageRight = new ImageView("file:Images/Image not Found.jpg");
+		imageLeft.setPreserveRatio(true);
+		imageRight.setPreserveRatio(true);
+		imageLeft.setFitHeight(1080.0d);
+		imageRight.setFitHeight(1080.0d);
 	}
 
 	private static Rectangle buildCloseButton() {
+
 		Rectangle X = new Rectangle(20.0d, 20.0d);
-
 		X.setFill(new ImagePattern(new Image("file:Images/X.png")));
-
 		X.setOnMouseClicked(event -> closeReader());
 		return X;
 	}
 
 	private static void closeReader() {
+
 		RootNode.stage.show();
 		readerStage.close();
-
 	}
 
 	private static void openChapter(String id) throws IOException {
 
-		APIChapter apiChapter = getChapter(id);
-		pages = getChapterPages(apiChapter);
+		getChapterPages(getChapter(id));
+
+		indexRight = 0;
+		indexLeft  = 1;
+
 		if(pages.length > 1) {
 			imageRight.setImage(pages[0]);
 			imageLeft.setImage(pages[1]);
@@ -102,9 +218,9 @@ public class ReadManga {
 		return null;
 	}
 
-	private static Image[] getChapterPages(APIChapter apiChapter) throws IOException {
+	private static void getChapterPages(APIChapter apiChapter) throws IOException {
 		APIChapterHash apiChapterHash;
-		Image[]        pages = new Image[apiChapter.data.attributes.pages];
+		pages = new Image[apiChapter.data.attributes.pages];
 
 		String baseUrl   = "https://api.mangadex.org/at-home/server/";
 		String forcePort = "?forcePort443=true";
@@ -114,17 +230,27 @@ public class ReadManga {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			Gson           gson   = new Gson();
 			apiChapterHash = gson.fromJson(reader, APIChapterHash.class);
-		} else
-			return (new Image[]{new Image("file:Images/Image not Found.jpg")});
-
-		for(int i = 0; i < apiChapter.data.attributes.pages; i++) {
-			connection = HTTP.getHttpResponse(
-					apiChapterHash.baseUrl + "/data/" + apiChapterHash.chapter.hash + '/' + apiChapterHash.chapter.data[i],
-					"GET");
-			if(connection.getResponseCode() == HttpURLConnection.HTTP_OK)
-				pages[i] = new Image(connection.getInputStream());
+		} else {
+			new Image("file:Images/Image not Found.jpg");
+			return;
 		}
 
-		return pages;
+		maxPages     = apiChapter.data.attributes.pages;
+		imageBaseUrl = apiChapterHash.baseUrl;
+		pagePath     = apiChapterHash.chapter.data;
+		chapterHash  = apiChapterHash.chapter.hash;
+		loadedPages  = 0;
+		loadPages(4);
+
+	}
+
+	private static void loadPages(int i) throws IOException {
+		HttpURLConnection connection;
+		for(int startIndex = loadedPages; loadedPages < maxPages && loadedPages < startIndex + i; loadedPages++) {
+			connection =
+					HTTP.getHttpResponse(imageBaseUrl + "/data/" + chapterHash + '/' + pagePath[loadedPages], "GET");
+			if(connection.getResponseCode() == HttpURLConnection.HTTP_OK)
+				pages[loadedPages] = new Image(connection.getInputStream());
+		}
 	}
 }

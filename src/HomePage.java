@@ -2,16 +2,20 @@ import APIChapterClasses.APIChapter;
 import APIChapterClasses.APIChapterListResponse;
 import APIChapterClasses.APIChapterRelationships;
 import APICustomListClasses.APISeasonalListResponse;
+import APICustomListClasses.APISeasonalRelationships;
+import APIMangaClasses.APIManga;
 import APIMangaClasses.APIMangaListResponse;
 import CoverRequests.CoverRequests;
 import CoverRequests.CoverRequestsData;
 import CoverRequests.CoverRequestsDataRelationships;
 import com.google.gson.Gson;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -29,10 +33,11 @@ import java.util.List;
 public class HomePage {
 
 	//Singleton mit wichtigen Klassenübergreifenden Daten
-	public static MangaReaderSingleton singleton;
-	public static ScrollPane           homeNode;
+	public static  MangaReaderSingleton singleton;
+	public static  ScrollPane           homeNode;
+	private static APIManga[]           seasonalMangas;
 
-	public static Node buildMainGUIMainPage() throws IOException {
+	public static void buildMainGUIMainPage() throws IOException {
 
 		//Initialisierung des Singletons
 		singleton = MangaReaderSingleton.instance();
@@ -47,7 +52,6 @@ public class HomePage {
 		homeNode = new ScrollPane(getStartPage());
 
 		singleton.homePage = homeNode;
-		return homeNode;
 	}
 
 	//Erstellt ung gibt die Hauptanzeige zurück
@@ -60,10 +64,9 @@ public class HomePage {
 		return new ScrollPane(allItems);
 	}
 
-	private static HBox getSeasonalList() {
+	private static ScrollPane getSeasonalList() throws IOException {
 
-		HBox seasonalList = new HBox();
-		//seasonalList.getChildren().addAll(buildSeasonalMangaListItem());
+		ScrollPane seasonalList = new ScrollPane(buildSeasonalMangaListItem());
 
 		return seasonalList;
 	}
@@ -94,7 +97,7 @@ public class HomePage {
 				if(i * 6 + a < chapters.length)
 					vBox[i].getChildren().add(buildChapterNode(chapters[i * 6 + a]));
 			borderPane[i].setCenter(vBox[i]);
-			borderPane[i].setPadding(new Insets(10));
+			borderPane[i].setPadding(new Insets(5));
 			table.getChildren().add(borderPane[i]);
 		}
 		core.getChildren().addAll(latestUpdatedSection, table);
@@ -123,14 +126,16 @@ public class HomePage {
 			title = new Label(chapterData.title.substring(0, 22) + "...");
 		else
 			title = new Label(chapterData.title);
-		//title.set
+		title.setMaxWidth(250);
 		title.setId("latestUpdateTitle");
 
 		Label chapter = new Label(chapterData.chapterNumber + chapterData.chapterTitle);
 		chapter.setId("latestUpdateChapterTitle");
+		chapter.setMaxWidth(250);
 
 		Label group = new Label(chapterData.group);
 		group.setId("latestUpdateGroup");
+		group.setMaxWidth(250);
 
 		String[] time  = chapterData.updatedAgo.split("-", 3);
 		String[] time2 = time[2].substring(3).split(":", 3);
@@ -142,15 +147,17 @@ public class HomePage {
 		Label    updatedAgo = new Label(duration.toHours() + " Hours " + duration.toMinutes() + " Minutes ago");
 		updatedAgo.setId("latestUpdateUpdatedAgo");
 
-		BorderPane node = new BorderPane();
-		node.setLeft(group);
+		BorderPane node = new BorderPane(group);
 		node.setRight(updatedAgo);
+		node.setMaxWidth(250);
+
 		otherVBox.getChildren().addAll(title, chapter, node);
+		otherVBox.setSpacing(5);
 
 		borderPane.setCenter(otherVBox);
-
 		borderPane.setMinWidth(singleton.width / 4 - 10 * 4);
 		borderPane.setMaxWidth(singleton.width / 4 - 10 * 4);
+
 		vBox.getChildren().add(borderPane);
 		vBox.setOnMouseClicked(event -> {
 			try {
@@ -161,7 +168,6 @@ public class HomePage {
 			}
 		});
 
-		vBox.setPadding(new Insets(5));
 		return vBox;
 	}
 
@@ -261,16 +267,17 @@ public class HomePage {
 
 		//Bekommt den Bildpfad der Covers als Sting Array
 		ids = getCoverArtFileNames(ids);
+		ArrayList<String> paths = new ArrayList<>();
 
 		//Überprüft alle Pfade
-		for(int i = 0; i < ids.length; i++) {
+		for(String id : ids) {
 
 			//Speichert nichts ab, wenn kein Bild vorhanden ist (Bilder haben immer "512.jpg")
-			if(!ids[i].contains("512.jpg"))
-				ids[i] = null;
+			if(id.contains("512.jpg"))
+				paths.add(id);
 		}
 
-		return ids;
+		return paths.toArray(new String[0]);
 	}
 
 	private static String[] getCoverArtFileNames(String[] ids) throws IOException {
@@ -335,7 +342,7 @@ public class HomePage {
 				"https://api.mangadex.org/manga?limit=20&contentRating[]=safe&contentRating[]=suggestive&" +
 				"contentRating[]=erotica&order[createdAt]=desc&includes[]=cover_art");
 		singleton.mangaListSeasonalAdded =
-				getMangasCustomList("https://api.mangadex.org/list/ff210dec-862b-4c17-8608-0e7f97c70488");
+				getMangasCustomList("https://api.mangadex.org/list/1f43956d-9fe6-478e-9805-aa75ec0ac45e");
 
 
 	}
@@ -381,21 +388,84 @@ public class HomePage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader          inputReader =
-					new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson        = new Gson();
-			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson       = new Gson();
+			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();
 	}
 
-	private static Node[] buildSeasonalMangaListItem() {
+	private static Node buildSeasonalMangaListItem() throws IOException {
 
-		ImageView imageView = new ImageView();
-		Image     image     = new Image("");
-		imageView.setImage(image);
+		ArrayList<String>   neededCovers = new ArrayList<>();
+		ArrayList<APIManga> mangas       = new ArrayList<>();
 
-		return new Node[0];
+		for(APISeasonalRelationships relationship : singleton.mangaListSeasonalAdded.data.relationships) {
+
+			APIManga manga = getManga(relationship.id);
+			if(manga != null) {
+				mangas.add(manga);
+				neededCovers.add(relationship.id);
+			}
+		}
+
+		String baseHttpUrl = "https://uploads.mangadex.org/covers/";
+		for(String coverPath : getMultipleMangaCovers(neededCovers.toArray(new String[0]))) {
+			for(APIManga manga : mangas) {
+				if(manga.data.id.equals(coverPath.split("/")[0])) {
+					manga.data.cover = new Image(baseHttpUrl + coverPath);
+				}
+			}
+		}
+
+		HBox hBox = new HBox();
+		for(APIManga manga : mangas) {
+			hBox.getChildren().add(buildSeasonalNode(manga));
+		}
+		return hBox;
+	}
+
+	private static HBox buildSeasonalNode(APIManga manga) {
+
+		ImageView seasonalCover = new ImageView(manga.data.cover);
+		seasonalCover.setFitWidth(93.0d);
+		seasonalCover.setFitHeight(228.0d);
+		seasonalCover.getStyleClass().add("seasonalCovers");
+
+		Label seasonalTitle = new Label("Unknown Title");
+		seasonalTitle.setMaxWidth(230.0d);
+		seasonalTitle.getStyleClass().add("seasonalTitle");
+		if(manga.data.attributes.title.ja != null)
+			seasonalTitle.setText(manga.data.attributes.title.ja);
+		else
+			seasonalTitle.setText(manga.data.attributes.title.en);
+
+		Label seasonalDescription = new Label("No Description found");
+		seasonalDescription.setWrapText(true);
+		seasonalDescription.setMaxWidth(230.0d);
+		seasonalDescription.setMaxHeight(200.0d);
+		seasonalDescription.getStyleClass().add("seasonalDescription");
+		if(manga.data.attributes.description.en != null)
+			seasonalDescription.setText(manga.data.attributes.description.en);
+
+		VBox seasonalText = new VBox(seasonalTitle, seasonalDescription);
+		seasonalText.getStyleClass().add("seasonalTexts");
+
+		HBox seasonalNode = new HBox(seasonalCover, seasonalText);
+		seasonalNode.getStyleClass().add("seasonalNodes");
+
+		return seasonalNode;
+	}
+
+	private static APIManga getManga(String id) throws IOException {
+		String            baseUrl    = "https://api.mangadex.org/manga/";
+		HttpURLConnection connection = HTTP.getHttpResponse(baseUrl + id, "GET");
+		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson           gson   = new Gson();
+			return gson.fromJson(reader, APIManga.class);
+		}
+		return null;
 	}
 }

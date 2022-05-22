@@ -8,7 +8,7 @@ public class MangaReaderSingleton {
 
 	private static final MangaReaderSingleton holyInstance = new MangaReaderSingleton();
 	public               BorderPane           rootNode;
-	public Node                               homePage;
+	public               Node                 homePage;
 
 	private MangaReaderSingleton() {}
 
@@ -26,7 +26,9 @@ public class MangaReaderSingleton {
 	//https://api.mangadex.org/manga?limit=20&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&order[createdAt]=desc&includes[]=cover_art
 	public APIMangaListResponse mangaListRecentlyAdded;
 
-	//https://api.mangadex.org/list/ff210dec-862b-4c17-8608-0e7f97c70488
+	//Diese URL ist für die Sommersaison 2022 und wird von Admins auf MangaDex manuell als personalisierte Liste
+	// erstellt, weswegen diese URL ebenfalls manuell geändert werden muss
+	//https://api.mangadex.org/list/1f43956d-9fe6-478e-9805-aa75ec0ac45e
 	public APISeasonalListResponse mangaListSeasonalAdded;
 	public double                  height, width;
 	public BorderPane centerViewNode;
