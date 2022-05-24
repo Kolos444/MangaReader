@@ -29,26 +29,6 @@
 	
 }
 
-#latestUpdateTitle{
-	-fx-font-size   :16;
-	-fx-font-weight :bold;
-}
-
-#latestUpdateChapterTitle{
-	-fx-font-size :14;
-}
-
-#latestUpdateGroup{
-	-fx-font-size :12;
-	
-}
-
-#latestUpdateUpdatedAgo{
-	-fx-font-size :12;
-	
-}
-
-
 
 .scroll-pane{
 	-fx-background-color :transparent;

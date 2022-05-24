@@ -1,0 +1,30 @@
+.chapterInfo{
+	-fx-padding :3, 0, 0, 0;
+}
+
+.latestUpdateTitle{
+	-fx-font-size   :16;
+	-fx-font-weight :bold;
+}
+
+.latestUpdateChapterTitle{
+	-fx-font-size :14;
+}
+
+.latestUpdateGroup{
+	-fx-font-size :12;
+	
+}
+
+.latestUpdateUpdatedAgo{
+	-fx-font-size :12;
+}
+
+.updateBox{
+	-fx-background-color  :#363B3D;
+	-fx-background-radius :8;
+	
+	-fx-padding           :7, 7, 7, 7;
+	-fx-border-insets     :3, 3, 3, 3;
+	-fx-background-insets :3, 3, 3, 3;
+}
