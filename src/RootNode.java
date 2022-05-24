@@ -1,7 +1,3 @@
-import APIMangaClasses.APIMangaListData;
-import APIMangaClasses.APIMangaListRelationships;
-import APIMangaClasses.APIMangaListResponse;
-import com.google.gson.Gson;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,16 +11,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.util.Objects;
 
 public class RootNode {
 
 	//Die primaryStage in der alles angezeigt wird
-	public static Stage stage;
+	public static Stage      stage;
 
 	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
 	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
@@ -59,7 +52,8 @@ public class RootNode {
 			 .addAll(Objects.requireNonNull(getClass().getResource("CSS/MainWindow.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/NavBar.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/SeasonalManga.css")).toExternalForm(),
-					 Objects.requireNonNull(getClass().getResource("CSS/mangaPage.css")).toExternalForm());
+					 Objects.requireNonNull(getClass().getResource("CSS/mangaPage.css")).toExternalForm(),
+					 Objects.requireNonNull(getClass().getResource("CSS/searchStyling.css")).toExternalForm());
 
 
 		ReadManga.initializeReadManga();
@@ -151,54 +145,29 @@ public class RootNode {
 
 	private Node buildMangaSearchTextBox() {
 		searchBox = new TextField();
+		searchBox.setOnAction(event -> {
+			try {
+				singleton.rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 		return searchBox;
 	}
 
 	private Node buildMangaSearchButton() {
 		Button button = new Button("Search");
+		button.setId("searchButton");
 		button.setOnAction(event -> {
 			try {
-				searchManga(searchBox.getText());
+				singleton.rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
 		});
-		button.setId("searchButton");
 		return button;
 	}
 
-	private void searchManga(String text) throws IOException {
-		APIMangaListResponse mangaList = HomePage.getMangas(
-				"https://api.mangadex.org/manga?limit=100&offset=0&includes[]=cover_art&includes[]=author " +
-				"&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&title =" +
-				text + "&order[relevance]=desc");
-
-		for(int j = 0; j < mangaList.data.length; j++) {
-			for(int i = 0; i < mangaList.data[j].relationships.length; i++) {
-				if(mangaList.data[j].relationships[i].type.equals("cover_art"))
-					mangaList.data[j].attributes.cover = new javafx.scene.image.Image(
-							"https://uploads.mangadex.org/covers/" + mangaList.data[j].id + "/" + mangaList.data[j].relationships[i].attributes.fileName);
-			}
-		}
-
-		for(APIMangaListData manga : mangaList.data) {
-			HomePage.buildSearchNode(manga);
-		}
-		return;
-	}
-
-
-	private void getSearchList(String text) throws IOException {
-		String baseUrl = "https://api.mangadex.org/manga?limit=100&offset=0&includes[]=cover_art&includes" +
-						 "[]=author&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive" +
-						 "&contentRating[]=erotica&title=" + text + "&order[relevance]=desc";
-		HttpURLConnection connection = HTTP.getHttpResponse(baseUrl + id, "GET");
-		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader       reader    = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                 gson      = new Gson();
-			APIMangaListResponse mangaList = gson.fromJson(reader, APIMangaListResponse.class);
-		}
-	}
 
 	private Node buildNavbarLogo() {
 		//TODO Wie man Images einfügt nachschauen

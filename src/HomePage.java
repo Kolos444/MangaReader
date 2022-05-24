@@ -4,19 +4,16 @@ import APIChapterClasses.APIChapterRelationships;
 import APICustomListClasses.APISeasonalListResponse;
 import APICustomListClasses.APISeasonalRelationships;
 import APIMangaClasses.APIManga;
-import APIMangaClasses.APIMangaListData;
 import APIMangaClasses.APIMangaListResponse;
 import CoverRequests.CoverRequests;
 import CoverRequests.CoverRequestsData;
 import CoverRequests.CoverRequestsDataRelationships;
 import com.google.gson.Gson;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
@@ -38,7 +35,6 @@ public class HomePage {
 	//Singleton mit wichtigen Klassenübergreifenden Daten
 	public static  MangaReaderSingleton singleton;
 	public static  ScrollPane           homeNode;
-	private static APIManga[]           seasonalMangas;
 
 	public static void buildMainGUIMainPage() throws IOException {
 
@@ -176,7 +172,6 @@ public class HomePage {
 	 Wandelt die API Kapitel Daten aus dem Singleton in die nutzbare Kapitel-Klasse um und gibt dies als Array zurück
 
 	 @return Gibt die zuletzt aktualisierten Kapitel in einem Chapter Array zurück
-
 	 */
 	private static Chapter[] getLatestChapters() throws IOException {
 
@@ -388,9 +383,10 @@ public class HomePage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson       = new Gson();
-			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader          inputReader =
+					new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson        = new Gson();
+			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();
@@ -487,18 +483,4 @@ public class HomePage {
 		return null;
 	}
 
-	public static Node buildSearchNode(APIMangaListData manga) {
-
-		HBox core = new HBox();
-
-		ImageView cover = new ImageView(manga.attributes.cover);
-
-		VBox mangaInformation = new VBox();
-
-		Label title = new Label("No Title found");
-		if(manga.attributes.)
-
-
-		return null;
-	}
 }
