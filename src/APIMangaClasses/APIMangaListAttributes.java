@@ -1,6 +1,7 @@
 package APIMangaClasses;
 
 import APIClasses.APITitle;
+import javafx.scene.image.Image;
 
 public class APIMangaListAttributes {
 	public APITitle title;
@@ -11,4 +12,7 @@ public class APIMangaListAttributes {
 	public String status;
 	public String year;
 	public APITags[] tags;
+
+	//Nicht von der API
+	public Image cover;
 }

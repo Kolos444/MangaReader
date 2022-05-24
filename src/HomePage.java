@@ -4,6 +4,7 @@ import APIChapterClasses.APIChapterRelationships;
 import APICustomListClasses.APISeasonalListResponse;
 import APICustomListClasses.APISeasonalRelationships;
 import APIMangaClasses.APIManga;
+import APIMangaClasses.APIMangaListData;
 import APIMangaClasses.APIMangaListResponse;
 import CoverRequests.CoverRequests;
 import CoverRequests.CoverRequestsData;
@@ -356,7 +357,7 @@ public class HomePage {
 		return new APIChapterListResponse();
 	}
 
-	private static APIMangaListResponse getMangas(String url) throws IOException {
+	static APIMangaListResponse getMangas(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -483,6 +484,21 @@ public class HomePage {
 			Gson           gson   = new Gson();
 			return gson.fromJson(reader, APIManga.class);
 		}
+		return null;
+	}
+
+	public static Node buildSearchNode(APIMangaListData manga) {
+
+		HBox core = new HBox();
+
+		ImageView cover = new ImageView(manga.attributes.cover);
+
+		VBox mangaInformation = new VBox();
+
+		Label title = new Label("No Title found");
+		if(manga.attributes.)
+
+
 		return null;
 	}
 }

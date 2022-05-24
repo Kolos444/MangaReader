@@ -7,7 +7,7 @@ public class APIMangaData {
 	public APIMangaListAttributes attributes;
 	public APIMangaListRelationships[] relationships;
 
-	//Nicht con der API
+	//Nicht von der API
 	public Image cover;
 	
 }
