@@ -31,7 +31,7 @@ public class ReadManga {
 
 	public static void open(String id) throws IOException {
 		readerStage.show();
-		RootNode.stage.hide();
+		RootNode.getStage().hide();
 
 		openChapter(id);
 	}
@@ -186,7 +186,7 @@ public class ReadManga {
 
 	private static void closeReader() {
 
-		RootNode.stage.show();
+		RootNode.getStage().show();
 		readerStage.close();
 	}
 

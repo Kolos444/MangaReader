@@ -16,36 +16,55 @@ import java.util.Objects;
 
 public class RootNode {
 
-	//Die primaryStage in der alles angezeigt wird
-	public static Stage      stage;
+	private final        BorderPane rootNode;
+	private static final double     width = 1280, height = 720;
 
-	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
-	MangaReaderSingleton singleton = MangaReaderSingleton.instance();
-	private static double xOffset, yOffset;
-	private TextField searchBox;
-
-	public Stage returnStage() {
+	public static Stage getStage() {
 		return stage;
 	}
+
+	public static void setStage(Stage stage) {
+		RootNode.stage = stage;
+	}
+
+	public static double getWidth() {
+		return width;
+	}
+
+	public static double getHeight() {
+		return height;
+	}
+
+	public static HBox getCenterNode() {
+		return centerNode;
+	}
+
+	//Die primaryStage in der alles angezeigt wird
+	private static Stage stage;
+
+	//Der Singleton mit dem Klassenübergreifend auf wichtige Objekte zugegriffen wird
+	private static double xOffset, yOffset;
+	private              TextField searchBox;
+	private static final HBox      centerNode = new HBox();
 
 	public RootNode() throws IOException {
 
 		stage = new Stage();
 		stage.initStyle(StageStyle.UNDECORATED);
 
-		singleton.rootNode = new BorderPane();
+		rootNode = new BorderPane();
 
 		//Ermöglicht das Bewegen des Fensters (https://stackoverflow.com/a/18177792/19121944)
-		singleton.rootNode.setOnMousePressed(event -> {
+		rootNode.setOnMousePressed(event -> {
 			xOffset = event.getSceneX();
 			yOffset = event.getSceneY();
 		});
-		singleton.rootNode.setOnMouseDragged(event -> {
+		rootNode.setOnMouseDragged(event -> {
 			stage.setX(event.getScreenX() - xOffset);
 			stage.setY(event.getScreenY() - yOffset);
 		});
 
-		Scene scene = new Scene(singleton.rootNode);
+		Scene scene = new Scene(rootNode);
 
 
 		scene.getStylesheets()
@@ -58,8 +77,8 @@ public class RootNode {
 
 		ReadManga.initializeReadManga();
 
-		singleton.rootNode.setTop(buildMainWindowTop());
-		singleton.rootNode.setCenter(buildMainWindowCenter());
+		rootNode.setTop(buildMainWindowTop());
+		rootNode.setCenter(buildMainWindowCenter());
 
 		stage.setScene(scene);
 		stage.show();
@@ -104,7 +123,7 @@ public class RootNode {
 	private MenuItem buildMangaStandard() {
 		MenuItem standard = new MenuItem("Manga");
 		standard.setOnAction(event -> {
-			singleton.centerViewNode.setCenter(HomePage.homeNode);
+			RootNode.getCenterNode().getChildren().set(0, HomePage.getHomeNode());
 		});
 		return standard;
 	}
@@ -147,7 +166,7 @@ public class RootNode {
 		searchBox = new TextField();
 		searchBox.setOnAction(event -> {
 			try {
-				singleton.rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
+				rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -160,7 +179,7 @@ public class RootNode {
 		button.setId("searchButton");
 		button.setOnAction(event -> {
 			try {
-				singleton.rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
+				rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -177,22 +196,16 @@ public class RootNode {
 
 	private Node buildMainWindowCenter() throws IOException {
 
-		BorderPane centerViewPane = new BorderPane();
-
-		centerViewPane.setMinHeight(680);
-		centerViewPane.setMaxHeight(680);
-		centerViewPane.setMinWidth(1280);
-		centerViewPane.setMaxWidth(1280);
-
-		singleton.width  = centerViewPane.getMinWidth();
-		singleton.height = centerViewPane.getMinHeight();
+		centerNode.setMinHeight(height - 40);
+		centerNode.setMaxHeight(height - 40);
+		centerNode.setMinWidth(width);
+		centerNode.setMaxWidth(width);
 
 		HomePage.buildMainGUIMainPage();
+		centerNode.getChildren().add(HomePage.getHomeNode());
 
-		centerViewPane.setCenter(singleton.homePage);
 
-		singleton.centerViewNode = centerViewPane;
-		return centerViewPane;
+		return centerNode;
 	}
 
 

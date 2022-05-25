@@ -19,8 +19,16 @@ import java.net.HttpURLConnection;
 
 public class MangaPage {
 
-	static APIManga   mangaObject;
-	static ScrollPane viewNode;
+	private static APIManga   mangaObject;
+	private static ScrollPane mangaPage;
+
+	public static ScrollPane getMangaPage() {
+		return mangaPage;
+	}
+
+	public static void setMangaPage(ScrollPane mangaPage) {
+		MangaPage.mangaPage = mangaPage;
+	}
 
 	public MangaPage() throws IOException {
 		setManga("6b958848-c885-4735-9201-12ee77abcb3c");
@@ -36,7 +44,7 @@ public class MangaPage {
 		mangaObject = getMangaObject(id);
 		VBox mangaPage = new VBox();
 		mangaPage.getChildren().addAll(buildMangaTop(), buildMangaChapters());
-		viewNode = new ScrollPane(mangaPage);
+		MangaPage.mangaPage = new ScrollPane(mangaPage);
 	}
 
 	public static Node buildMangaTop() {
@@ -59,10 +67,7 @@ public class MangaPage {
 				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
 										relationship.attributes.fileName);
 				cover.setHeight(cover.getHeight() * image.getHeight() / image.getWidth());
-				if(image != null)
-					cover.setFill(new ImagePattern(image));
-				else
-					cover.setFill(new ImagePattern(new Image("file:Images/Image not Found.jpg")));
+				cover.setFill(new ImagePattern(image));
 			}
 		}
 

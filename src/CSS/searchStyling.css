@@ -17,7 +17,11 @@
 }
 
 .searchTags{
-	-fx-background-color :#666666;
+	-fx-background-color  :#666666;
+	-fx-background-radius :10;
+	-fx-font-size         :10;
+	-fx-padding           :2, 0, 2, 0;
+	
 }
 
 .searchDescription{

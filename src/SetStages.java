@@ -21,6 +21,6 @@ public class SetStages extends Application {
 
 	//Setzt die Main GUI als angezeigte in der primaryStage
 	public void displayMainGUI(){
-		primaryStage = rootNode.returnStage();
+		primaryStage = RootNode.getStage();
 	}
 }

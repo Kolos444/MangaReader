@@ -10,7 +10,9 @@ import CoverRequests.CoverRequestsData;
 import CoverRequests.CoverRequestsDataRelationships;
 import com.google.gson.Gson;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -35,17 +37,25 @@ import java.util.List;
 public class HomePage {
 
 	//Singleton mit wichtigen Klassenübergreifenden Daten
-	public static MangaReaderSingleton singleton;
-	public static ScrollPane           homeNode;
+	public static  MangaReaderSingleton    singleton;
+	private static APIChapterListResponse  mangaListLatestUpdate;
+	private static APIMangaListResponse    mangaListRecentlyAdded;
+	private static APISeasonalListResponse mangaListSeasonalAdded;
+
+	public static ScrollPane getHomeNode() {
+		return homeNode;
+	}
+
+	public static void setHomeNode(ScrollPane homeNode) {
+		HomePage.homeNode = homeNode;
+	}
+
+	private static ScrollPane homeNode;
 
 	public static void buildMainGUIMainPage() throws IOException {
 
-		//Initialisierung des Singletons
-		singleton = MangaReaderSingleton.instance();
-
 		//Updated die im Singleton Manga Listen mit den neusten, zuletzt aktualisierten und saisonal Mangas
 		getMangaLists();
-
 
 		//Gibt die Hauptanzeige der Anwendung zurück
 
@@ -53,29 +63,50 @@ public class HomePage {
 		homeNode = new ScrollPane(getStartPage());
 		homeNode.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 		homeNode.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-
-		singleton.homePage = homeNode;
-
 	}
 
 	//Erstellt ung gibt die Hauptanzeige zurück
 	public static Node getStartPage() throws IOException {
 
 		VBox allItems = new VBox(getSeasonalList(), getLatestUpdate(), getRecentlyAdded());
+		allItems.setPrefWidth(RootNode.getWidth());
 
 		return new ScrollPane(allItems);
 	}
 
 	private static Node getSeasonalList() throws IOException {
 
+		Button toLeft  = new Button("<");
+		Button toRight = new Button(">");
+
 		HBox       content      = buildSeasonalMangaListItem();
 		ScrollPane seasonalList = new ScrollPane(content);
-		seasonalList.setPrefViewportWidth(singleton.width - 25);
+		seasonalList.setPrefViewportWidth(RootNode.getWidth() - 75);
 		seasonalList.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-		seasonalList.setPrefViewportHeight(content.getHeight());
+		seasonalList.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		//		seasonalList.setPrefViewportHeight(250.0d);
 
-		return seasonalList;
+		seasonalList.setFitToHeight(true);
+
+		toRight.setOnAction(event -> {
+			double set = seasonalList.getHvalue() + 3d / (content.getChildren().size());
+
+			if(set > seasonalList.getHmax())
+				seasonalList.setHvalue(seasonalList.getHmax());
+			else
+				seasonalList.setHvalue(set);
+		});
+
+		toLeft.setOnAction(event -> {
+			double set = seasonalList.getHvalue() - 0.2;
+
+			if(set < 0)
+				seasonalList.setHvalue(0);
+			else
+				seasonalList.setHvalue(set);
+		});
+
+		return new HBox(toLeft, seasonalList, toRight);
 	}
 
 	//Eine Liste der zuletzt hinzugefügten Kapitel
@@ -152,13 +183,13 @@ public class HomePage {
 
 		HBox updateBox = new HBox(cover, chapterInfo);
 		updateBox.getStyleClass().add("updateBox");
-		updateBox.setMinWidth(singleton.width / 4 - 10 * 4);
-		updateBox.setMaxWidth(singleton.width / 4 - 10 * 4);
+		updateBox.setMinWidth(RootNode.getWidth() / 4 - 10 * 4);
+		updateBox.setMaxWidth(RootNode.getWidth() / 4 - 10 * 4);
 
 		updateBox.setOnMouseClicked(event -> {
 			try {
 				MangaPage.setManga(chapterData.id);
-				singleton.centerViewNode.setCenter(MangaPage.viewNode);
+				RootNode.getCenterNode().getChildren().set(0, MangaPage.getMangaPage());
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -181,7 +212,7 @@ public class HomePage {
 		List<String> neededCovers = new ArrayList<String>() {};
 
 		//Geht alle rohen API Daten durch
-		for(APIChapter chapter : singleton.mangaListLatestUpdate.data) {
+		for(APIChapter chapter : mangaListLatestUpdate.data) {
 
 			Chapter newChapter = new Chapter();
 
@@ -328,14 +359,14 @@ public class HomePage {
 
 	private static void getMangaLists() throws IOException {
 
-		singleton.mangaListLatestUpdate  = getChapters(
+		mangaListLatestUpdate  = getChapters(
 				"https://api.mangadex.org/chapter?includes[]=manga&includes[]=scanlation_group&limit=24&translated" +
 				"Language[]=en&translatedLanguage[]=de&contentRating[]=safe&contentRating[]=suggestive&" +
 				"contentRating[]=erotica&order[readableAt]=desc");
-		singleton.mangaListRecentlyAdded = getMangas(
+		mangaListRecentlyAdded = getMangas(
 				"https://api.mangadex.org/manga?limit=20&contentRating[]=safe&contentRating[]=suggestive&" +
 				"contentRating[]=erotica&order[createdAt]=desc&includes[]=cover_art");
-		singleton.mangaListSeasonalAdded =
+		mangaListSeasonalAdded =
 				getMangasCustomList("https://api.mangadex.org/list/1f43956d-9fe6-478e-9805-aa75ec0ac45e");
 
 
@@ -382,10 +413,9 @@ public class HomePage {
 	private static APISeasonalListResponse getMangasCustomList(String url) throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader          inputReader =
-					new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson        = new Gson();
-			APISeasonalListResponse mangaArray  = gson.fromJson(inputReader, APISeasonalListResponse.class);
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			Gson                    gson       = new Gson();
+			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
 			return mangaArray;
 		}
 		return new APISeasonalListResponse();
@@ -396,7 +426,7 @@ public class HomePage {
 		ArrayList<String>   neededCovers = new ArrayList<>();
 		ArrayList<APIManga> mangas       = new ArrayList<>();
 
-		for(APISeasonalRelationships relationship : singleton.mangaListSeasonalAdded.data.relationships) {
+		for(APISeasonalRelationships relationship : mangaListSeasonalAdded.data.relationships) {
 
 			APIManga manga = getManga(relationship.id);
 			if(manga != null) {
@@ -419,6 +449,7 @@ public class HomePage {
 			if(manga.data.cover != null)
 				hBox.getChildren().add(buildSeasonalNode(manga));
 		}
+
 		return hBox;
 	}
 
@@ -461,7 +492,7 @@ public class HomePage {
 		seasonalNode.setOnMouseClicked(event -> {
 			try {
 				MangaPage.setManga(manga.data.id);
-				singleton.centerViewNode.setCenter(MangaPage.viewNode);
+				RootNode.getCenterNode().getChildren().set(0, MangaPage.getMangaPage());
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
