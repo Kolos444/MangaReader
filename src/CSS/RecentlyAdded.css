@@ -1,0 +1,8 @@
+.recentlyAddedCore{
+	-fx-padding :20, 0, 0, 0;
+}
+
+.recentlyAddedTitle{
+	-fx-padding   :5, 0, 0, 0;
+	-fx-wrap-text :true;
+}

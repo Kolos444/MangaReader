@@ -231,6 +231,7 @@ public class ReadManga {
 			Gson           gson   = new Gson();
 			apiChapterHash = gson.fromJson(reader, APIChapterHash.class);
 		} else {
+			//TODO was ist das hier?
 			new Image("file:Images/Image not Found.jpg");
 			return;
 		}

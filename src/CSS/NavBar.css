@@ -2,7 +2,7 @@
 
 /* VARIABLE DEFINITIONS: Only these 4 variables have to be adjusted, the rest is copy-paste */
 *{
-	-fx-my-menu-color                  :#2A2F33; /* Change according to your needs */
+	-fx-my-menu-color                  :#212328; /* Change according to your needs */
 	-fx-my-menu-color-highlighted      :#54595B; /* Change according to your needs */
 	-fx-my-menu-font-color             :#94999D; /* Change according to your needs */
 	-fx-my-menu-font-color-highlighted :#C6CBCF; /* Change according to your needs */
@@ -22,6 +22,7 @@
 /*** Top-level menu's label (not selected / hovered) ***/
 .menu-bar > .container > .menu-button > .label{
 	-fx-text-fill :-fx-my-menu-font-color;
+	-fx-font-size:25;
 }
 
 /*** Top-level menu's label (disabled) ***/
@@ -41,6 +42,7 @@
 .menu-bar > .container > .menu-button:focused > .label,
 .menu-bar > .container > .menu-button:showing > .label{
 	-fx-text-fill :-fx-my-menu-font-color-highlighted;
+	-fx-font-size:25;
 }
 
 /* MENU ITEM (children of a MENU BUTTON) */
@@ -56,10 +58,12 @@
 /*** The item's label (not hovered / focused) ***/
 .menu-item .label{
 	-fx-text-fill :-fx-my-menu-font-color;
+	-fx-font-size:25;
 }
 
 .menu-item:hover .label{
 	-fx-text-fill :-fx-my-menu-font-color-highlighted;
+	-fx-font-size:25;
 }
 
 /*** The item's label (disabled) ***/

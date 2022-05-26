@@ -1,3 +1,4 @@
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -72,7 +73,9 @@ public class RootNode {
 					 Objects.requireNonNull(getClass().getResource("CSS/NavBar.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/SeasonalManga.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/mangaPage.css")).toExternalForm(),
-					 Objects.requireNonNull(getClass().getResource("CSS/searchStyling.css")).toExternalForm());
+					 Objects.requireNonNull(getClass().getResource("CSS/searchStyling.css")).toExternalForm(),
+					 Objects.requireNonNull(getClass().getResource("CSS/RecentlyAdded.css")).toExternalForm(),
+					 Objects.requireNonNull(getClass().getResource("CSS/LatestUpdated.css")).toExternalForm());
 
 
 		ReadManga.initializeReadManga();
@@ -164,6 +167,10 @@ public class RootNode {
 
 	private Node buildMangaSearchTextBox() {
 		searchBox = new TextField();
+		searchBox.setMinHeight(40d);
+		searchBox.setMaxHeight(40d);
+		searchBox.setMinWidth(200d);
+
 		searchBox.setOnAction(event -> {
 			try {
 				rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
@@ -176,6 +183,9 @@ public class RootNode {
 
 	private Node buildMangaSearchButton() {
 		Button button = new Button("Search");
+		button.setMinHeight(40d);
+		button.setMaxHeight(40d);
+		button.setMinWidth(60d);
 		button.setId("searchButton");
 		button.setOnAction(event -> {
 			try {

@@ -28,9 +28,11 @@ public class SearchPage {
 		for(int j = 0; j < mangaList.data.length; j++) {
 			for(int i = 0; i < mangaList.data[j].relationships.length; i++) {
 				if(mangaList.data[j].relationships[i].type.equals("cover_art"))
-					mangaList.data[j].attributes.cover = new Image(
-							"https://uploads.mangadex.org/covers/" + mangaList.data[j].id + "/" +
-							mangaList.data[j].relationships[i].attributes.fileName);
+//					mangaList.data[j].attributes.cover = new Image(
+//							"https://uploads.mangadex.org/covers/" + mangaList.data[j].id + "/" +
+//							mangaList.data[j].relationships[i].attributes.fileName);
+					//TODO Bild ändern
+					mangaList.data[j].attributes.cover = new Image("file:Images/Image not Found.jpg");
 			}
 		}
 

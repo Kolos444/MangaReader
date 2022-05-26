@@ -1,5 +1,6 @@
 .chapterInfo{
 	-fx-padding :3, 0, 0, 0;
+	
 }
 
 .latestUpdateTitle{
@@ -18,13 +19,19 @@
 
 .latestUpdateUpdatedAgo{
 	-fx-font-size :12;
+	-fx-alignment :center-right;
 }
 
 .updateBox{
-	-fx-background-color  :#199ACE;
-	-fx-background-radius :8;
-	
 	-fx-padding           :7, 7, 7, 7;
 	-fx-border-insets     :3, 3, 3, 3;
 	-fx-background-insets :3, 3, 3, 3;
+}
+
+.latestUpdatedRow{
+	-fx-background-color  :#212328;
+	
+	-fx-padding           :3;
+	-fx-border-insets     :7, 7, 7, 7;
+	-fx-background-insets :7, 7, 7, 7;
 }

@@ -4,11 +4,14 @@ import APIChapterClasses.APIChapterRelationships;
 import APICustomListClasses.APISeasonalListResponse;
 import APICustomListClasses.APISeasonalRelationships;
 import APIMangaClasses.APIManga;
+import APIMangaClasses.APIMangaListData;
 import APIMangaClasses.APIMangaListResponse;
 import CoverRequests.CoverRequests;
 import CoverRequests.CoverRequestsData;
 import CoverRequests.CoverRequestsDataRelationships;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import javafx.beans.property.Property;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -16,7 +19,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
@@ -32,12 +34,12 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class HomePage {
 
 	//Singleton mit wichtigen Klassenübergreifenden Daten
-	public static  MangaReaderSingleton    singleton;
 	private static APIChapterListResponse  mangaListLatestUpdate;
 	private static APIMangaListResponse    mangaListRecentlyAdded;
 	private static APISeasonalListResponse mangaListSeasonalAdded;
@@ -60,32 +62,38 @@ public class HomePage {
 		//Gibt die Hauptanzeige der Anwendung zurück
 
 		//TODO ab dieser Methode wird die setFillcolor der Fullscreen Scene ignoriert
-		homeNode = new ScrollPane(getStartPage());
-		homeNode.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-		homeNode.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		homeNode = getStartPage();
+
 	}
 
 	//Erstellt ung gibt die Hauptanzeige zurück
-	public static Node getStartPage() throws IOException {
+	public static ScrollPane getStartPage() throws IOException {
 
 		VBox allItems = new VBox(getSeasonalList(), getLatestUpdate(), getRecentlyAdded());
 		allItems.setPrefWidth(RootNode.getWidth());
 
-		return new ScrollPane(allItems);
+		ScrollPane scrollPane = new ScrollPane(allItems);
+		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		return scrollPane;
 	}
 
 	private static Node getSeasonalList() throws IOException {
 
-		Button toLeft  = new Button("<");
+		Button toLeft = new Button("<");
+		toLeft.setMinHeight(150d);
+		toLeft.getStyleClass().add("seasonalButton");
+
 		Button toRight = new Button(">");
+		toRight.setMinHeight(150d);
+		toRight.getStyleClass().add("seasonalButton");
 
 		HBox       content      = buildSeasonalMangaListItem();
 		ScrollPane seasonalList = new ScrollPane(content);
 		seasonalList.setPrefViewportWidth(RootNode.getWidth() - 75);
 		seasonalList.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 		seasonalList.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-		//		seasonalList.setPrefViewportHeight(250.0d);
-
+		seasonalList.setPrefViewportHeight(250.0d);
 		seasonalList.setFitToHeight(true);
 
 		toRight.setOnAction(event -> {
@@ -98,7 +106,7 @@ public class HomePage {
 		});
 
 		toLeft.setOnAction(event -> {
-			double set = seasonalList.getHvalue() - 0.2;
+			double set = seasonalList.getHvalue() + 3d / (content.getChildren().size());
 
 			if(set < 0)
 				seasonalList.setHvalue(0);
@@ -106,7 +114,10 @@ public class HomePage {
 				seasonalList.setHvalue(set);
 		});
 
-		return new HBox(toLeft, seasonalList, toRight);
+		HBox seasonalNode = new HBox(toLeft, seasonalList, toRight);
+		seasonalNode.setAlignment(Pos.CENTER_LEFT);
+		seasonalNode.setStyle("-fx-background-color:#1f4dc0");
+		return seasonalNode;
 	}
 
 	//Eine Liste der zuletzt hinzugefügten Kapitel
@@ -125,20 +136,21 @@ public class HomePage {
 		Label latestUpdatedSection = new Label("Latest Updates");
 		table.getChildren().add(latestUpdatedSection);
 
-		BorderPane[] borderPane = new BorderPane[6];
-		VBox[]       vBox       = new VBox[6];
+		VBox[] vBox = new VBox[6];
 
 		for(int i = 0; i < 4; i++) {
-			borderPane[i] = new BorderPane();
-			vBox[i]       = new VBox();
+
+			vBox[i] = new VBox();
+
 			for(int a = 0; a < 6; a++)
 				if(i * 6 + a < chapters.length)
 					vBox[i].getChildren().add(buildChapterNode(chapters[i * 6 + a]));
-			borderPane[i].setCenter(vBox[i]);
-			borderPane[i].setPadding(new Insets(5));
-			table.getChildren().add(borderPane[i]);
+
+			vBox[i].getStyleClass().add("latestUpdatedRow");
+			table.getChildren().add(vBox[i]);
 		}
 		core.getChildren().addAll(latestUpdatedSection, table);
+		core.setStyle("-fx-background-color:#4fd00e");
 
 		return core;
 	}
@@ -146,7 +158,8 @@ public class HomePage {
 	private static Node buildChapterNode(Chapter chapterData) {
 
 		Rectangle cover = new Rectangle(100.d, 100.d, 45.0d, 60.0d);
-		cover.getStyleClass().add("latestUpdateCover");
+		cover.setArcHeight(8d);
+		cover.setArcWidth(8d);
 
 		if(chapterData.mangaCover != null)
 			cover.setFill(new ImagePattern(chapterData.mangaCover));
@@ -159,7 +172,7 @@ public class HomePage {
 			title.setText(chapterData.title);
 		title.getStyleClass().add("latestUpdateTitle");
 
-		Label chapter = new Label(chapterData.chapterNumber + chapterData.chapterTitle);
+		Label chapter = new Label("Ch. " + chapterData.chapterNumber + " - " + chapterData.chapterTitle);
 		chapter.getStyleClass().add("latestUpdateChapterTitle");
 
 		Label group = new Label(chapterData.group);
@@ -171,20 +184,35 @@ public class HomePage {
 													   Integer.parseInt(time[2].substring(0, 2)),
 													   Integer.parseInt(time2[0]), Integer.parseInt(time2[1]),
 													   Integer.parseInt(time[2].substring(0, 2)));
-		Duration duration   = Duration.between(localDateTime, LocalDateTime.now(ZoneId.of("UTC")));
-		Label    updatedAgo = new Label(duration.toHours() + " Hours " + duration.toMinutes() + " Minutes ago");
+		Duration duration = Duration.between(localDateTime, LocalDateTime.now(ZoneId.of("UTC")));
+
+		String text;
+		if(duration.toDays() >= 1)
+			text = duration.toDays() + "d " + (duration.toHours() - duration.toDays() * 24) + "h " +
+				   (duration.toMinutes() - duration.toHours() * 60) + "m ago" + " ago";
+		else if(duration.toHours() >= 1)
+			text = duration.toHours() + "h " + (duration.toMinutes() - duration.toHours() * 60) + "m ago";
+		else
+			text = duration.toMinutes() + "m ago";
+
+		Label updatedAgo = new Label(text);
+		updatedAgo.setAlignment(Pos.CENTER_RIGHT);
 		updatedAgo.getStyleClass().add("latestUpdateUpdatedAgo");
 
-		HBox groupTime = new HBox(group, updatedAgo);
-		groupTime.setMaxWidth(250);
+		BorderPane groupTime = new BorderPane();
+		groupTime.setLeft(group);
+		groupTime.setRight(updatedAgo);
 
 		VBox chapterInfo = new VBox(title, chapter, groupTime);
 		chapterInfo.getStyleClass().add("chapterInfo");
 
 		HBox updateBox = new HBox(cover, chapterInfo);
 		updateBox.getStyleClass().add("updateBox");
-		updateBox.setMinWidth(RootNode.getWidth() / 4 - 10 * 4);
-		updateBox.setMaxWidth(RootNode.getWidth() / 4 - 10 * 4);
+		updateBox.setMinWidth(RootNode.getWidth() / 4 - 10);
+		updateBox.setMaxWidth(RootNode.getWidth() / 4 - 10);
+
+		groupTime.setMinWidth(updateBox.getMinWidth() - 45 - 3 - 17);
+		groupTime.setMaxWidth(updateBox.getMinWidth() - 45 - 3 - 17);
 
 		updateBox.setOnMouseClicked(event -> {
 			try {
@@ -283,7 +311,9 @@ public class HomePage {
 			for(String id : covers) {
 				if(id != null)
 					if(chapter.id.equals(id.split("/")[0]))
-						chapter.mangaCover = new Image(baseHttpUrl + id);
+						chapter.mangaCover = new Image("file:Images/Image not Found.jpg");
+				//TODO Bild wieder ändern
+				//chapter.mangaCover = new Image(baseHttpUrl + id);
 			}
 		}
 	}
@@ -352,9 +382,57 @@ public class HomePage {
 		return new String[0];
 	}
 
-	private static HBox getRecentlyAdded() {
+	private static HBox getRecentlyAdded() throws IOException {
 		HBox recentlyAdded = new HBox();
-		return recentlyAdded;
+
+		ArrayList<String> neededCovers = new ArrayList<>();
+		for(APIMangaListData manga : mangaListRecentlyAdded.data) {
+			neededCovers.add(manga.id);
+		}
+
+		for(String mangaCover : getMultipleMangaCovers(neededCovers.toArray(new String[0]))) {
+			for(APIMangaListData manga : mangaListRecentlyAdded.data) {
+				String id = mangaCover.split("/")[0];
+				if(id.equals(manga.id))
+					manga.attributes.cover = new Image("https://mangadex.org/covers/" + mangaCover);
+			}
+		}
+
+		for(APIMangaListData manga : mangaListRecentlyAdded.data) {
+			recentlyAdded.getChildren().add(buildRecentlyAddedManga(manga));
+		}
+
+		ScrollPane scrollPane = new ScrollPane(recentlyAdded);
+		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		scrollPane.setFitToHeight(true);
+		HBox hBox = new HBox(scrollPane);
+		hBox.setStyle("-fx-background-color:#dc2323");
+		return hBox;
+	}
+
+	private static VBox buildRecentlyAddedManga(APIMangaListData manga) {
+		Rectangle cover = new Rectangle(128d, 180d);
+		cover.setArcWidth(10d);
+		cover.setArcHeight(10d);
+		if(manga.attributes.cover != null)
+			cover.setFill(new ImagePattern(manga.attributes.cover));
+		else
+			cover.setFill(new ImagePattern(new Image("file:Images/Image not Found.jpg")));
+
+		Label title = new Label("Not Found");
+		title.getStyleClass().add("recentlyAddedTitle");
+		title.setMaxWidth(128d);
+		if(manga.attributes.title.en != null)
+			title.setText(manga.attributes.title.en);
+		else if(manga.attributes.title.ja != null)
+			title.setText(manga.attributes.title.ja);
+		else if(manga.attributes.title.de != null)
+			title.setText(manga.attributes.title.de);
+
+		VBox core = new VBox(cover, title);
+		core.getStyleClass().add("recentlyAddedCore");
+		return core;
 	}
 
 	private static void getMangaLists() throws IOException {
@@ -414,11 +492,10 @@ public class HomePage {
 		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			Gson                    gson       = new Gson();
-			APISeasonalListResponse mangaArray = gson.fromJson(inputReader, APISeasonalListResponse.class);
-			return mangaArray;
+			Gson           gson        = new Gson();
+			return gson.fromJson(inputReader, APISeasonalListResponse.class);
 		}
-		return new APISeasonalListResponse();
+		return null;
 	}
 
 	private static HBox buildSeasonalMangaListItem() throws IOException {
@@ -435,14 +512,29 @@ public class HomePage {
 			}
 		}
 
-		String baseHttpUrl = "https://uploads.mangadex.org/covers/";
 		for(String coverPath : getMultipleMangaCovers(neededCovers.toArray(new String[0]))) {
 			for(APIManga manga : mangas) {
 				if(manga.data.id.equals(coverPath.split("/")[0])) {
-					manga.data.cover = new Image(baseHttpUrl + coverPath);
+					manga.data.cover = new Image("file:Images/Image not Found.jpg");
+					//TODO Bild ändern
+					//manga.data.cover = new Image(baseHttpUrl + coverPath);
 				}
 			}
 		}
+
+		String statisticsUrl = "https://api.mangadex.org/statistics/manga?";
+		for(APIManga manga : mangas) {
+			statisticsUrl += "manga[]=" + manga.data.id + "&";
+		}
+
+		APIStatisticsResponse response = getStatistics(statisticsUrl);
+		for(APIManga manga : mangas) {
+			JsonObject jsonObject = response.statistics.get(manga.data.id).getAsJsonObject();
+			manga.data.follows = jsonObject.get("follows").getAsInt();
+			manga.data.rating  = jsonObject.get("rating").getAsJsonObject().get("average").getAsDouble();
+		}
+
+		mangas.sort((o1, o2) -> Integer.compare(o2.data.follows, o1.data.follows));
 
 		HBox hBox = new HBox();
 		for(APIManga manga : mangas) {
@@ -451,6 +543,16 @@ public class HomePage {
 		}
 
 		return hBox;
+	}
+
+	private static APIStatisticsResponse getStatistics(String url) throws IOException {
+		HttpURLConnection connection = HTTP.getHttpResponse(url, "GET");
+		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			Gson           gson  = new Gson();
+			BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			return gson.fromJson(input, APIStatisticsResponse.class);
+		}
+		return null;
 	}
 
 	private static HBox buildSeasonalNode(APIManga manga) {
@@ -463,9 +565,7 @@ public class HomePage {
 				new WritableImage(reader, (int)(width / 2 - 0.40789473 * height / 2), 0, (int)(0.40789473 * height),
 								  (int)height);
 
-		ImageView seasonalCover = new ImageView(newImage);
-		seasonalCover.setFitWidth(93.0d);
-		seasonalCover.setFitHeight(230.0d);
+		Rectangle seasonalCover = new Rectangle(93d, 230d, new ImagePattern(newImage));
 		seasonalCover.getStyleClass().add("seasonalCovers");
 
 		Label seasonalTitle = new Label("Unknown Title");
@@ -488,6 +588,7 @@ public class HomePage {
 		seasonalText.getStyleClass().add("seasonalTexts");
 
 		HBox seasonalNode = new HBox(seasonalCover, seasonalText);
+		seasonalNode.setMaxHeight(230d);
 		seasonalNode.getStyleClass().add("seasonalNodes");
 		seasonalNode.setOnMouseClicked(event -> {
 			try {

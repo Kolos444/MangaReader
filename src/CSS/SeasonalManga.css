@@ -2,9 +2,14 @@
 	-fx-padding           :5px;
 	-fx-border-insets     :5px;
 	-fx-background-insets :5px;
+	
+	-fx-background-color  :#212328;
+	-fx-background-radius :10;
 }
 
 .seasonalCovers{
+-fx-arc-height:10;
+-fx-arc-width:10;
 }
 
 .seasonalTexts{
@@ -25,4 +30,9 @@
 
 .seasonalDescription{
 	-fx-font-size :17;
+}
+
+.seasonalButton{
+	-fx-background-color :#ff6740;
+	-fx-border-color     :transparent;
 }

@@ -9,5 +9,7 @@ public class APIMangaData {
 
 	//Nicht von der API
 	public Image cover;
-	
+	public double rating;
+	public int follows;
+
 }
