@@ -1,6 +1,4 @@
-import APIMangaClasses.APIManga;
-import APIMangaClasses.APIMangaListData;
-import APIMangaClasses.APIMangaListResponse;
+import APIMangaClasses.*;
 import com.google.gson.JsonObject;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -37,7 +35,7 @@ public class SearchPage {
 			JsonObject jsonObject = response.statistics.get(manga.id).getAsJsonObject();
 			manga.attributes.follows = jsonObject.get("follows").getAsInt();
 			if(!jsonObject.get("rating").getAsJsonObject().get("average").isJsonNull())
-				manga.attributes.rating  = jsonObject.get("rating").getAsJsonObject().get("average").getAsDouble();
+				manga.attributes.rating = jsonObject.get("rating").getAsJsonObject().get("average").getAsDouble();
 		}
 
 		for(int j = 0; j < mangaList.data.length; j++) {
@@ -93,16 +91,17 @@ public class SearchPage {
 		//Von MangaDex noch nicht implementiert
 		//		Label views             = new Label("N/A");
 		//		Label comments          = new Label("N/A");
-		//		Label publicationStatus = new Label("N/A");
 
-		HBox stats = new HBox(rating, follows/*, views, comments, publicationStatus*/);
+				Label publicationStatus = new Label(manga.attributes.status);
+
+		HBox stats = new HBox(rating, follows/*, views, comments*/, publicationStatus);
 		stats.getStyleClass().add("searchStats");
 
 
 		HBox tags = new HBox();
 		tags.getStyleClass().add("searchTags");
-		for(String tag : new String[]{"N/A"}) {
-			tags.getChildren().add(new Label(tag));
+		for(APITags tag : manga.attributes.tags) {
+			tags.getChildren().add(new Label(tag.attributes.name.en));
 		}
 
 		Label description = new Label("Not available");

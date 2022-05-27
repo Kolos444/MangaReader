@@ -1,9 +1,12 @@
 import APIChapters.APICChaptersRelationships;
 import APIChapters.APIChaptersData;
 import APIChapters.APIChaptersResponse;
+import APIMangaClasses.APIAltTitles;
 import APIMangaClasses.APIManga;
 import APIMangaClasses.APIMangaListRelationships;
+import APIMangaClasses.APITags;
 import com.google.gson.Gson;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -30,10 +33,6 @@ public class MangaPage {
 		MangaPage.mangaPage = mangaPage;
 	}
 
-	public MangaPage() throws IOException {
-		setManga("6b958848-c885-4735-9201-12ee77abcb3c");
-	}
-
 	static void setManga(String id) throws IOException {
 
 		//Fals der gewünschte Manga schon geladen ist wird direkt returned
@@ -42,16 +41,13 @@ public class MangaPage {
 				return;
 
 		mangaObject = getMangaObject(id);
-		VBox mangaPage = new VBox();
-		mangaPage.getChildren().addAll(buildMangaTop(), buildMangaChapters());
+		VBox mangaPage = new VBox(buildMangaTop(), buildMangaChapters());
 		MangaPage.mangaPage = new ScrollPane(mangaPage);
+		MangaPage.mangaPage.setMaxWidth(RootNode.getWidth() - 1);
+		MangaPage.mangaPage.setMinWidth(RootNode.getWidth() - 1);
 	}
 
-	public static Node buildMangaTop() {
-		return buildMangaPresentation();
-	}
-
-	private static Node buildMangaPresentation() {
+	private static HBox buildMangaTop() {
 
 		//Das zurückgebende Element
 		HBox back = new HBox();
@@ -81,26 +77,59 @@ public class MangaPage {
 
 		//Erstellt ein Label des englischen Titels
 		Label englishTitle = new Label("No english Title found");
-		if(mangaObject.data.attributes.title.en != null) {
-			englishTitle = new Label(mangaObject.data.attributes.title.en);
-			englishTitle.setId("mangaEnglishTitle");
+		for(APIAltTitles altTitle : mangaObject.data.attributes.altTitles) {
+			if(altTitle.en != null) {
+				englishTitle = new Label(altTitle.en);
+				englishTitle.getStyleClass().add("mangaEnglishTitle");
+			}
 		}
 
-		//Es gibt einen fehler bei dem Attributes speziell bei Author und Artist nicht initialisiert wird obwohl das
-		// gleiche bei cover_art möglich ist
-		/*
-				//Sucht alle Autoren und Künstler raus und speichert sie in einem Label
-				StringBuilder peopleString = new StringBuilder();
-				for(APIMangaListRelationships relationship: mangaObject.data.relationships) {
-					if(relationship.type.equals("author")||relationship.type.equals("artist"))
-						if(relationship.attributes!=null)
-							peopleString.append(relationship.attributes.name+", ");
-				}
-				Label people = new Label(peopleString.toString());*/
-
-
-		back.getChildren().addAll(cover, new VBox(title, englishTitle/*,people*/, buildMangaDescription()));
+		back.getChildren().addAll(cover, new VBox(title, englishTitle, getPeople(), getTags(), buildMangaDescription()));
 		return back;
+	}
+
+	private static Label getPeople() {
+		//Sucht alle Autoren und Künstler raus und speichert sie in einem Label
+		StringBuilder peopleString = new StringBuilder();
+		for(APIMangaListRelationships relationship : mangaObject.data.relationships) {
+			if(relationship.type.equals("author") || relationship.type.equals("artist"))
+				if(relationship.attributes != null)
+					peopleString.append(relationship.attributes.name).append(", ");
+		}
+		Label people = new Label(peopleString.toString());
+		people.getStyleClass().add("mangaPeople");
+		people.setPadding(new Insets(10, 0, 10, 0));
+		return people;
+	}
+
+	private static HBox getTags() {
+		Label contentRating = new Label();
+		if(mangaObject.data.attributes.contentRating!=null){
+			contentRating.setText(mangaObject.data.attributes.contentRating.toUpperCase());
+			switch(mangaObject.data.attributes.contentRating){
+				case "Gore":
+				case "Doujinshi":
+					contentRating.setStyle("-fx-background-color :#FF4040;");
+					break;
+				case "Suggestive":
+					contentRating.setStyle("-fx-background-color :#F79421;");
+					break;
+				default:
+					contentRating.setStyle("-fx-background-color:#066000");
+			}
+		}
+		HBox tags = new HBox(contentRating);
+
+		for(APITags tag : mangaObject.data.attributes.tags) {
+			Label tagLabel = new Label(tag.attributes.name.en.toUpperCase());
+			tagLabel.getStyleClass().add("mangaTag");
+
+			HBox placeholder = new HBox();
+			placeholder.setMinWidth(5);
+			placeholder.setMaxWidth(5);
+			tags.getChildren().addAll(tagLabel,placeholder);
+		}
+		return tags;
 	}
 
 	private static Node buildMangaDescription() {
@@ -116,8 +145,9 @@ public class MangaPage {
 	}
 
 	public static APIManga getMangaObject(String id) throws IOException {
-		HttpURLConnection connection =
-				HTTP.getHttpResponse("https://api.mangadex.org/manga/" + id + "?includes[]=cover_art", "GET");
+		HttpURLConnection connection = HTTP.getHttpResponse(
+				"https://api.mangadex.org/manga/" + id + "?includes[]=artist&includes[]=author&includes[]=cover_art",
+				"GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			Gson           gson        = new Gson();
@@ -126,12 +156,12 @@ public class MangaPage {
 		return null;
 	}
 
-	public static Node buildMangaChapters() throws IOException {
+	public static VBox buildMangaChapters() throws IOException {
 		HttpURLConnection connection = HTTP.getHttpResponse(
 				"https://api.mangadex.org/manga/" + mangaObject.data.id + "/feed?translatedLanguage[]=en" +
 				"&translatedLanguage[]=de&limit=300&includes[]=scanlation_group&includes[]=user&order[volume]=desc" +
 				"&order[chapter]=desc&offset=0&contentRating[]=safe&contentRating[]=suggestive&contentRating" +
-				"[]=erotica" + "&contentRating[]=pornographic", "GET");
+				"[]=erotica&contentRating[]=pornographic", "GET");
 
 		VBox back = new VBox();
 
@@ -152,13 +182,16 @@ public class MangaPage {
 					}
 				});
 
-				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + " - " + chapter.attributes.title);
+				Label chapterTitle = new Label("Ch." + chapter.attributes.chapter + " - ");
+
+				if(chapter.attributes.title != null)
+					chapterTitle.setText(chapterTitle.getText() + chapter.attributes.title);
+
 				chapterTitle.getStyleClass().addAll("chapterBoxContent");
 				chapterTitle.getStyleClass().add("chapterBoxTitle");
 
 				Label group = new Label("no group"), user = new Label("no uploader");
-				group.getStyleClass().addAll("chapterBoxContent");
-				user.getStyleClass().addAll("chapterBoxContent");
+
 
 				for(APICChaptersRelationships relation : chapter.relationships) {
 					if(relation.type.equals("scanlation_group"))
@@ -166,11 +199,13 @@ public class MangaPage {
 					if(relation.type.equals("user"))
 						user = new Label(relation.attributes.username);
 				}
+				group.getStyleClass().addAll("chapterBoxContent");
+				user.getStyleClass().addAll("chapterBoxContent");
 
-				Label createdAt = new Label(chapter.attributes.createdAt);
-				createdAt.getStyleClass().add("chapterBoxUpdatedAgo");
+
+				Label createdAt = new Label(HomePage.getTimespan(chapter.attributes.createdAt));
 				createdAt.getStyleClass().add("chapterBoxContent");
-
+				createdAt.getStyleClass().add("chapterBoxUpdatedAgo");
 
 				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);
 				HBox placeholder = new HBox();

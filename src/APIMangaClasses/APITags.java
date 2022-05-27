@@ -1,5 +1,5 @@
 package APIMangaClasses;
 
 public class APITags {
-	APITagsAttributes attributes;
+	public APITagsAttributes attributes;
 }

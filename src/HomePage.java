@@ -148,22 +148,7 @@ public class HomePage {
 		Label group = new Label(chapterData.group);
 		group.getStyleClass().add("latestUpdateGroup");
 
-		String[] time  = chapterData.updatedAgo.split("-", 3);
-		String[] time2 = time[2].substring(3).split(":", 3);
-		LocalDateTime localDateTime = LocalDateTime.of(Integer.parseInt(time[0]), Month.of(Integer.parseInt(time[1])),
-													   Integer.parseInt(time[2].substring(0, 2)),
-													   Integer.parseInt(time2[0]), Integer.parseInt(time2[1]),
-													   Integer.parseInt(time[2].substring(0, 2)));
-		Duration duration = Duration.between(localDateTime, LocalDateTime.now(ZoneId.of("UTC")));
-
-		String text;
-		if(duration.toDays() >= 1)
-			text = duration.toDays() + "d " + (duration.toHours() - duration.toDays() * 24) + "h " +
-				   (duration.toMinutes() - duration.toHours() * 60) + "m ago" + " ago";
-		else if(duration.toHours() >= 1)
-			text = duration.toHours() + "h " + (duration.toMinutes() - duration.toHours() * 60) + "m ago";
-		else
-			text = duration.toMinutes() + "m ago";
+		String text = getTimespan(chapterData.updatedAgo);
 
 		Label updatedAgo = new Label(text);
 		updatedAgo.setAlignment(Pos.CENTER_RIGHT);
@@ -194,6 +179,30 @@ public class HomePage {
 		});
 
 		return updateBox;
+	}
+
+	public static String getTimespan(String chapterData) {
+		String[] time  = chapterData.split("-", 3);
+		String[] time2 = time[2].substring(3).split(":", 3);
+		LocalDateTime localDateTime = LocalDateTime.of(Integer.parseInt(time[0]), Month.of(Integer.parseInt(time[1])),
+													   Integer.parseInt(time[2].substring(0, 2)),
+													   Integer.parseInt(time2[0]), Integer.parseInt(time2[1]),
+													   Integer.parseInt(time[2].substring(0, 2)));
+		Duration duration = Duration.between(localDateTime, LocalDateTime.now(ZoneId.of("UTC")));
+
+		String text;
+		if(duration.toDays() >= 365) {
+			text = ((int)duration.toDays() / 365) + "y " + (duration.toDays() - 365 * ((int)duration.toDays() / 365)) +
+				   "d " + (duration.toHours() - duration.toDays() * 24) + "h " +
+				   (duration.toMinutes() - duration.toHours() * 60) + "m ago" + " ago";
+		} else if(duration.toDays() >= 1)
+			text = duration.toDays() + "d " + (duration.toHours() - duration.toDays() * 24) + "h " +
+				   (duration.toMinutes() - duration.toHours() * 60) + "m ago" + " ago";
+		else if(duration.toHours() >= 1)
+			text = duration.toHours() + "h " + (duration.toMinutes() - duration.toHours() * 60) + "m ago";
+		else
+			text = duration.toMinutes() + "m ago";
+		return text;
 	}
 
 	/**
@@ -318,9 +327,6 @@ public class HomePage {
 			Gson           gson        = new Gson();
 			CoverRequests  mangaArray  = gson.fromJson(inputReader, CoverRequests.class);
 
-			//Ändert die größe des Arrays da durch Filterung manche Mangas nicht angezeigt werden
-			//ids = new String[mangaArray.total];
-
 			//Geht über jeden einzelnen Manga
 			for(int i = 0; i < ids.length; i++) {
 				for(CoverRequestsData data : mangaArray.data) {
@@ -368,7 +374,7 @@ public class HomePage {
 		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
 		HBox hBox = buildButtons(recentlyAdded.getChildren().size(), scrollPane);
-		hBox.setMaxWidth(RootNode.getWidth()-1);
+		hBox.setMaxWidth(RootNode.getWidth() - 1);
 		Label recently_added = new Label("Recently Added");
 		recently_added.getStyleClass().add("sectionTitle");
 		return new VBox(recently_added, hBox);

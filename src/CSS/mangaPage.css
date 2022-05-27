@@ -1,7 +1,6 @@
 .mangaTitle{
 	-fx-font-size   :50;
 	-fx-font-weight :bold;
-	-fx-text-fill   :#FFFFFF;
 	
 	-fx-max-width   :1000;
 	-fx-wrap-text   :true;
@@ -21,15 +20,40 @@
 }
 
 .chapterBoxUpdatedAgo{
-	-fx-alignment :center-right;
+	-fx-alignment      :center-right;
+	-fx-text-alignment :right;
 }
 
+.mangaPeople{
+}
 
 .chapterBox{
-	-fx-background-color :#222222;
-	-fx-min-width        :800px;
-	-fx-max-width        :800px;
+	-fx-background-color :#212328;
 	-fx-arc-height       :5;
 	-fx-arc-width        :5;
 	-fx-padding          :5;
+	-fx-max-width        :960;
+	-fx-min-width        :960;
+}
+
+.mangaEnglishTitle{
+	-fx-font-size   :20;
+	-fx-font-weight :600;
+}
+
+.mangaTag{
+	-fx-background-color  :#3D414A;
+	-fx-background-radius :5;
+}
+
+.doujinshiTag{
+	-fx-background-color :#FF4040;
+}
+
+.suggestiveTag{
+	-fx-background-color :#F79421;
+}
+
+.goreTag{
+	-fx-background-color :#FF4040;
 }
