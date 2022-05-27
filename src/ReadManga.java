@@ -231,8 +231,6 @@ public class ReadManga {
 			Gson           gson   = new Gson();
 			apiChapterHash = gson.fromJson(reader, APIChapterHash.class);
 		} else {
-			//TODO was ist das hier?
-			new Image("file:Images/Image not Found.jpg");
 			return;
 		}
 
@@ -242,7 +240,6 @@ public class ReadManga {
 		chapterHash  = apiChapterHash.chapter.hash;
 		loadedPages  = 0;
 		loadPages(4);
-
 	}
 
 	private static void loadPages(int i) throws IOException {

@@ -8,8 +8,8 @@
 }
 
 .seasonalCovers{
--fx-arc-height:10;
--fx-arc-width:10;
+	-fx-arc-height :10;
+	-fx-arc-width  :10;
 }
 
 .seasonalTexts{
@@ -33,6 +33,6 @@
 }
 
 .seasonalButton{
-	-fx-background-color :#ff6740;
+	-fx-background-color :#FF6740;
 	-fx-border-color     :transparent;
 }

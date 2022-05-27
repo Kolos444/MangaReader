@@ -5,7 +5,7 @@ public class Chapter {
 	public String chapterTitle;
 	public String chapterNumber;
 	public String group;
-	public String updatedAgo; //TODO Muss noch ausgerechnet werden
+	public String updatedAgo;
 	public Image  mangaCover;
 	public String id;
 	

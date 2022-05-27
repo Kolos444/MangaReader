@@ -64,10 +64,8 @@ public class MangaPage {
 		//Sucht das Cover Bild und speichert es im Rechteck
 		for(APIMangaListRelationships relationship : mangaObject.data.relationships) {
 			if(relationship.type.equals("cover_art")) {
-				Image image = new Image("file:Images/Image not Found.jpg");
-				//TODO BIld ändern
-//				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
-//										relationship.attributes.fileName);
+				Image image = new Image("https://uploads.mangadex.org/covers/" + mangaObject.data.id + "/" +
+										relationship.attributes.fileName);
 				cover.setHeight(cover.getHeight() * image.getHeight() / image.getWidth());
 				cover.setFill(new ImagePattern(image));
 			}
@@ -175,7 +173,6 @@ public class MangaPage {
 
 
 				hBox.getChildren().addAll(chapterTitle, group, user, createdAt);
-				hBox.onMouseClickedProperty();//TODO Open Chapter
 				HBox placeholder = new HBox();
 				placeholder.setMinHeight(5.0d);
 				back.getChildren().addAll(hBox, placeholder);

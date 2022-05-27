@@ -15,4 +15,6 @@ public class APIMangaListAttributes {
 
 	//Nicht von der API
 	public Image cover;
+	public int follows;
+	public double rating;
 }

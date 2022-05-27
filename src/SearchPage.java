@@ -1,5 +1,7 @@
+import APIMangaClasses.APIManga;
 import APIMangaClasses.APIMangaListData;
 import APIMangaClasses.APIMangaListResponse;
+import com.google.gson.JsonObject;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -25,14 +27,26 @@ public class SearchPage {
 				"&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&title=" +
 				text + "&order[relevance]=desc");
 
+		StringBuilder statisticsUrl = new StringBuilder("https://api.mangadex.org/statistics/manga?");
+		for(APIMangaListData manga : mangaList.data) {
+			statisticsUrl.append("manga[]=").append(manga.id).append("&");
+		}
+
+		APIStatisticsResponse response = HomePage.getStatistics(statisticsUrl.toString());
+		for(APIMangaListData manga : mangaList.data) {
+			JsonObject jsonObject = response.statistics.get(manga.id).getAsJsonObject();
+			manga.attributes.follows = jsonObject.get("follows").getAsInt();
+			if(!jsonObject.get("rating").getAsJsonObject().get("average").isJsonNull())
+				manga.attributes.rating  = jsonObject.get("rating").getAsJsonObject().get("average").getAsDouble();
+		}
+
 		for(int j = 0; j < mangaList.data.length; j++) {
 			for(int i = 0; i < mangaList.data[j].relationships.length; i++) {
-				if(mangaList.data[j].relationships[i].type.equals("cover_art"))
-//					mangaList.data[j].attributes.cover = new Image(
-//							"https://uploads.mangadex.org/covers/" + mangaList.data[j].id + "/" +
-//							mangaList.data[j].relationships[i].attributes.fileName);
-					//TODO Bild ändern
-					mangaList.data[j].attributes.cover = new Image("file:Images/Image not Found.jpg");
+				if(mangaList.data[j].relationships[i].type.equals("cover_art")) {
+					mangaList.data[j].attributes.cover = new Image(
+							"https://uploads.mangadex.org/covers/" + mangaList.data[j].id + "/" +
+							mangaList.data[j].relationships[i].attributes.fileName);
+				}
 			}
 		}
 
@@ -73,14 +87,15 @@ public class SearchPage {
 		else if(manga.attributes.title.de != null)
 			title.setText(manga.attributes.title.de);
 
+		Label rating  = new Label(String.valueOf(manga.attributes.rating));
+		Label follows = new Label(String.valueOf(manga.attributes.follows));
 
-		Label rating            = new Label("-");
-		Label bookmarked        = new Label("-");
-		Label views             = new Label("N/A");
-		Label comments          = new Label("N/A");
-		Label publicationStatus = new Label("N/A");
+		//Von MangaDex noch nicht implementiert
+		//		Label views             = new Label("N/A");
+		//		Label comments          = new Label("N/A");
+		//		Label publicationStatus = new Label("N/A");
 
-		HBox stats = new HBox(rating, bookmarked, views, comments, publicationStatus);
+		HBox stats = new HBox(rating, follows/*, views, comments, publicationStatus*/);
 		stats.getStyleClass().add("searchStats");
 
 
@@ -100,7 +115,7 @@ public class SearchPage {
 		VBox information = new VBox(title, stats, tags, description);
 		information.getStyleClass().add("searchInfo");
 
-		HBox core        = new HBox(cover, information);
+		HBox core = new HBox(cover, information);
 		core.getStyleClass().add("searchBox");
 
 		return core;

@@ -14,13 +14,13 @@
 }
 
 #searchButton{
-	-fx-background-color :#FF6740;
-	-fx-background-insets:5;
+	-fx-background-color  :#FF6740;
+	-fx-background-insets :5;
 }
 
 .text-field{
-	-fx-background-color :#85878C;
-	-fx-background-insets:5;
+	-fx-background-color  :#85878C;
+	-fx-background-insets :5;
 }
 
 .label{
@@ -40,4 +40,9 @@
 
 #readerCoreBorder{
 	-fx-background-color :#272A2F;
+}
+
+.sectionTitle{
+	-fx-font-size   :25;
+	-fx-font-weight :600;
 }

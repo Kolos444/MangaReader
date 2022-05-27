@@ -31,7 +31,6 @@
 .latestUpdatedRow{
 	-fx-background-color  :#212328;
 	
-	-fx-padding           :3;
-	-fx-border-insets     :7, 7, 7, 7;
-	-fx-background-insets :7, 7, 7, 7;
+	-fx-border-insets     :7, 0, 0, 0;
+	-fx-background-insets :7, 0, 0, 0;
 }
