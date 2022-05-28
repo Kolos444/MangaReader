@@ -20,12 +20,16 @@ public class SearchPage {
 
 	public static ScrollPane searchManga(String text) throws IOException {
 
+		//Es gibt einen Fehler bei vielen Suchen bei dem aus irgendeinem grund der Errorcode 400 ausgespuckt wird,
+		// dies muss wohl an Java liegen da ich beispielsweise im Browser ohne problem eine Antwort bekomme. Leider
+		// ist mein Gehirn viel zu klein um in den nächsten 48 Stunden herauszufinden warum dies der Fall ist.
 		APIMangaListResponse mangaList = HomePage.getMangas(
-				"https://api.mangadex.org/manga?limit=100&offset=0&includes[]=cover_art&includes[]=author" +
+				"https://api.mangadex.org/manga?limit=16&offset=0&includes[]=cover_art&includes[]=author" +
 				"&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&title=" +
-				text + "&order[relevance]=desc");
+				text+ "&order[relevance]=desc");
 
 		StringBuilder statisticsUrl = new StringBuilder("https://api.mangadex.org/statistics/manga?");
+		assert mangaList != null;
 		for(APIMangaListData manga : mangaList.data) {
 			statisticsUrl.append("manga[]=").append(manga.id).append("&");
 		}

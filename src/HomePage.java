@@ -475,7 +475,7 @@ public class HomePage {
 			Gson           gson        = new Gson();
 			return gson.fromJson(filterGsonExceptions(inputReader), APIMangaListResponse.class);
 		}
-		return new APIMangaListResponse();
+		return null;
 	}
 
 	//Korrigiert Fehler erzeugende JSON Dateien
