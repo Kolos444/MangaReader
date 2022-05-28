@@ -166,8 +166,7 @@ public class MangaPage {
 		HttpURLConnection connection = HTTP.getHttpResponse(
 				"https://api.mangadex.org/manga/" + mangaObject.data.id + "/feed?translatedLanguage[]=en" +
 				"&translatedLanguage[]=de&limit=300&includes[]=scanlation_group&includes[]=user&order[volume]=desc" +
-				"&order[chapter]=desc&offset=0&contentRating[]=safe&contentRating[]=suggestive&contentRating" +
-				"[]=erotica&contentRating[]=pornographic", "GET");
+				"&order[chapter]=desc&offset=0&contentRating[]=safe&contentRating[]=suggestive", "GET");
 
 		VBox back = new VBox();
 

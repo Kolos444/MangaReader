@@ -447,11 +447,11 @@ public class HomePage {
 
 		mangaListLatestUpdate  = getChapters(
 				"https://api.mangadex.org/chapter?includes[]=manga&includes[]=scanlation_group&limit=24&translated" +
-				"Language[]=en&translatedLanguage[]=de&contentRating[]=safe&contentRating[]=suggestive&" +
-				"contentRating[]=erotica&order[readableAt]=desc");
+				"Language[]=en&translatedLanguage[]=de&contentRating[]=safe&contentRating[]=suggestive&order" +
+				"[readableAt]=desc");
 		mangaListRecentlyAdded = getMangas(
 				"https://api.mangadex.org/manga?limit=20&contentRating[]=safe&contentRating[]=suggestive&" +
-				"contentRating[]=erotica&order[createdAt]=desc&includes[]=cover_art");
+				"order[createdAt]=desc&includes[]=cover_art");
 		mangaListSeasonalAdded =
 				getMangasCustomList("https://api.mangadex.org/list/1f43956d-9fe6-478e-9805-aa75ec0ac45e");
 

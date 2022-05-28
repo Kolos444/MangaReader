@@ -25,7 +25,7 @@ public class SearchPage {
 		// ist mein Gehirn viel zu klein um in den nächsten 48 Stunden herauszufinden warum dies der Fall ist.
 		APIMangaListResponse mangaList = HomePage.getMangas(
 				"https://api.mangadex.org/manga?limit=16&offset=0&includes[]=cover_art&includes[]=author" +
-				"&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&title=" +
+				"&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive&title=" +
 				text+ "&order[relevance]=desc");
 
 		StringBuilder statisticsUrl = new StringBuilder("https://api.mangadex.org/statistics/manga?");
