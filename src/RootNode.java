@@ -1,6 +1,9 @@
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -11,7 +14,7 @@ import java.util.Objects;
 
 public class RootNode {
 
-	private static final double     width = 1280, height = 720;
+	private static final double width = 1280, height = 720;
 
 	public static Stage getStage() {
 		return stage;
@@ -77,12 +80,34 @@ public class RootNode {
 		BorderPane navigationBar = new BorderPane();
 
 		navigationBar.setCenter(buildNavbarOptions());
-		navigationBar.setRight(buildMangaSearch());
+		navigationBar.setRight(new HBox(buildMangaSearch(), buildControls()));
 
 		navigationBar.setMinWidth(1280);
 		navigationBar.setMinHeight(40);
 		navigationBar.setId("navBar");
 		return navigationBar;
+	}
+
+	private Node buildControls() {
+		return new HBox(buildMinimizeButton(),buildCloseButton()) ;
+	}
+
+	private Node buildMinimizeButton() {
+		Button minimize = new Button();
+		ImageView graphic = new ImageView(new Image("file:Images/-.png",30d,30d,false,false));
+		minimize.setGraphic(graphic);
+		minimize.setOnAction(event -> RootNode.getStage().setIconified(true));
+		minimize.setBackground(Background.EMPTY);
+		return minimize;
+	}
+
+	private Button buildCloseButton() {
+		Button close = new Button();
+		ImageView value = new ImageView(new Image("file:Images/X.png",30d,30d,false,false));
+		close.setGraphic(value);
+		close.setOnAction(event -> RootNode.getStage().close());
+		close.setBackground(Background.EMPTY);
+		return close;
 	}
 
 	private Node buildNavbarOptions() {
