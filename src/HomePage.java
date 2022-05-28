@@ -88,9 +88,11 @@ public class HomePage {
 		HBox seasonalNode = buildButtons(content.getChildren().size(), seasonalList);
 		seasonalNode.setAlignment(Pos.CENTER_LEFT);
 		seasonalNode.setMaxWidth(RootNode.getWidth() - 1);
+
 		Label seasonal_mangas = new Label("Seasonal Mangas");
 		seasonal_mangas.getStyleClass().add("sectionTitle");
 		seasonal_mangas.setPadding(new Insets(20, 0, 0, 0));
+
 		return new VBox(seasonal_mangas, seasonalNode);
 	}
 
@@ -307,19 +309,20 @@ public class HomePage {
 	private static String[] getCoverArtFileNames(String[] ids) throws IOException {
 
 		//Der Anfang an eine bestimmte URL die statisch ist
-		String baseHttpUrl = "https://api.mangadex.org/manga?includes[]=cover_art&order[followedCount]=desc";
+		StringBuilder baseHttpUrl =
+				new StringBuilder("https://api.mangadex.org/manga?includes[]=cover_art&order[followedCount]=desc");
 
 		//Fügt der Grund URL die IDs der gewünschten Mangas hinzu
 		for(String id : ids) {
-			baseHttpUrl += "&ids[]=" + id;
+			baseHttpUrl.append("&ids[]=").append(id);
 		}
 		//Optionales wie ein Limit und welche art von Content ein/ausgefiltert werden soll
-		baseHttpUrl += "&limit=" + ids.length +
-					   "&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating" +
-					   "[]=pornographic";
+		baseHttpUrl.append("&limit=").append(ids.length)
+				   .append("&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating")
+				   .append("[]=pornographic");
 
 		//Schickt die Http Abfrage ab und überprüft, ob diese erfolgreich ist
-		HttpURLConnection connection = HTTP.getHttpResponse(baseHttpUrl, "GET");
+		HttpURLConnection connection = HTTP.getHttpResponse(baseHttpUrl.toString(), "GET");
 		if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
 			//Wandelt den erhaltenen JSON Text in ein nutzbares Objekt um
@@ -392,10 +395,7 @@ public class HomePage {
 		toRight.setOnAction(event -> {
 			double set = scrollPane.getHvalue() + 3d / children;
 
-			if(set > scrollPane.getHmax())
-				scrollPane.setHvalue(scrollPane.getHmax());
-			else
-				scrollPane.setHvalue(set);
+			scrollPane.setHvalue(Math.min(set, scrollPane.getHmax()));
 		});
 
 		toLeft.setOnAction(event -> {
@@ -411,6 +411,7 @@ public class HomePage {
 	}
 
 	private static VBox buildRecentlyAddedManga(APIMangaListData manga) {
+
 		Rectangle cover = new Rectangle(128d, 180d);
 		cover.setArcWidth(10d);
 		cover.setArcHeight(10d);
@@ -431,6 +432,14 @@ public class HomePage {
 
 		VBox core = new VBox(cover, title);
 		core.getStyleClass().add("recentlyAddedCore");
+		core.setOnMouseClicked(event -> {
+			try {
+				MangaPage.setManga(manga.id);
+				RootNode.getCenterNode().getChildren().set(0, MangaPage.getMangaPage());
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 		return core;
 	}
 
@@ -527,6 +536,7 @@ public class HomePage {
 
 		APIStatisticsResponse response = getStatistics(statisticsUrl.toString());
 		for(APIManga manga : mangas) {
+			assert response != null;
 			JsonObject jsonObject = response.statistics.get(manga.data.id).getAsJsonObject();
 			manga.data.follows = jsonObject.get("follows").getAsInt();
 			manga.data.rating  = jsonObject.get("rating").getAsJsonObject().get("average").getAsDouble();

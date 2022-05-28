@@ -44,16 +44,8 @@
 .mangaTag{
 	-fx-background-color  :#3D414A;
 	-fx-background-radius :5;
-}
-
-.doujinshiTag{
-	-fx-background-color :#FF4040;
-}
-
-.suggestiveTag{
-	-fx-background-color :#F79421;
-}
-
-.goreTag{
-	-fx-background-color :#FF4040;
+	-fx-padding           :2;
+	-fx-font-size         :8;
+	-fx-text-fill         :#FFFFFF;
+	-fx-font-weight       :bold;
 }

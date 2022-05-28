@@ -4,21 +4,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HTTP {
-	
+
 	public static HttpURLConnection getHttpResponse(String url, String json, String method) throws IOException {
 		URL               UrlObj     = new URL(url);
 		HttpURLConnection connection = HTTP.createHttpConnection(UrlObj, method);
-		
+
 		HTTP.setHTTPBody(json, connection);
-		
+
 		return connection;
 	}
-	
+
 	public static HttpURLConnection getHttpResponse(String url, String method) throws IOException {
-		URL               UrlObj     = new URL(url);
-		HttpURLConnection connection = HTTP.createHttpConnection(UrlObj, method);
-		
-		return connection;
+		return HTTP.createHttpConnection(new URL(url), method);
 	}
 	
 	private static HttpURLConnection createHttpConnection(URL UrlObj, String method) throws IOException {

@@ -1,11 +1,11 @@
-import APIMangaClasses.*;
+import APIMangaClasses.APIMangaListData;
+import APIMangaClasses.APIMangaListResponse;
 import com.google.gson.JsonObject;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
@@ -18,7 +18,7 @@ public class SearchPage {
 
 	static ScrollPane searchCore = new ScrollPane();
 
-	public static Node searchManga(String text) throws IOException {
+	public static ScrollPane searchManga(String text) throws IOException {
 
 		APIMangaListResponse mangaList = HomePage.getMangas(
 				"https://api.mangadex.org/manga?limit=100&offset=0&includes[]=cover_art&includes[]=author" +
@@ -32,6 +32,7 @@ public class SearchPage {
 
 		APIStatisticsResponse response = HomePage.getStatistics(statisticsUrl.toString());
 		for(APIMangaListData manga : mangaList.data) {
+			assert response != null;
 			JsonObject jsonObject = response.statistics.get(manga.id).getAsJsonObject();
 			manga.attributes.follows = jsonObject.get("follows").getAsInt();
 			if(!jsonObject.get("rating").getAsJsonObject().get("average").isJsonNull())
@@ -65,11 +66,13 @@ public class SearchPage {
 		}
 
 		searchCore.setContent(searchContainer);
+		searchCore.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		searchCore.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		searchCore.setMaxWidth(RootNode.getWidth() - 1);
 		return searchCore;
 	}
 
-	public static Node buildSearchNode(APIMangaListData manga) {
-
+	public static HBox buildSearchNode(APIMangaListData manga) {
 
 		Rectangle cover =
 				new Rectangle(150, manga.attributes.cover.getHeight() * 150 / manga.attributes.cover.getWidth(),
@@ -85,24 +88,22 @@ public class SearchPage {
 		else if(manga.attributes.title.de != null)
 			title.setText(manga.attributes.title.de);
 
-		Label rating  = new Label(String.valueOf(manga.attributes.rating));
-		Label follows = new Label(String.valueOf(manga.attributes.follows));
+		Label rating  = new Label("Rating: " + manga.attributes.rating);
+		Label follows = new Label(" Follows: " + manga.attributes.follows);
 
-		//Von MangaDex noch nicht implementiert
-		//		Label views             = new Label("N/A");
-		//		Label comments          = new Label("N/A");
+		/*
+		Von MangaDex noch nicht implementiert
+		Label views             = new Label("N/A");
+		Label comments          = new Label("N/A");
+		*/
 
-				Label publicationStatus = new Label(manga.attributes.status);
+		Label publicationStatus = new Label(" Status: " + manga.attributes.status);
 
 		HBox stats = new HBox(rating, follows/*, views, comments*/, publicationStatus);
 		stats.getStyleClass().add("searchStats");
 
 
-		HBox tags = new HBox();
-		tags.getStyleClass().add("searchTags");
-		for(APITags tag : manga.attributes.tags) {
-			tags.getChildren().add(new Label(tag.attributes.name.en));
-		}
+		HBox tags = MangaPage.getTags(manga.attributes);
 
 		Label description = new Label("Not available");
 		description.getStyleClass().add("searchDescription");
@@ -116,6 +117,14 @@ public class SearchPage {
 
 		HBox core = new HBox(cover, information);
 		core.getStyleClass().add("searchBox");
+		core.setOnMouseClicked(event -> {
+			try {
+				MangaPage.setManga(manga.id);
+				RootNode.getCenterNode().getChildren().set(0, MangaPage.getMangaPage());
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 
 		return core;
 	}

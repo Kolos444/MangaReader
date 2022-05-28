@@ -1,39 +1,24 @@
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 
 public class RootNode {
 
-	private final        BorderPane rootNode;
 	private static final double     width = 1280, height = 720;
 
 	public static Stage getStage() {
 		return stage;
 	}
 
-	public static void setStage(Stage stage) {
-		RootNode.stage = stage;
-	}
-
 	public static double getWidth() {
 		return width;
-	}
-
-	public static double getHeight() {
-		return height;
 	}
 
 	public static HBox getCenterNode() {
@@ -53,7 +38,7 @@ public class RootNode {
 		stage = new Stage();
 		stage.initStyle(StageStyle.UNDECORATED);
 
-		rootNode = new BorderPane();
+		BorderPane rootNode = new BorderPane();
 
 		//Ermöglicht das Bewegen des Fensters (https://stackoverflow.com/a/18177792/19121944)
 		rootNode.setOnMousePressed(event -> {
@@ -87,12 +72,11 @@ public class RootNode {
 		stage.show();
 	}
 
-	private Node buildMainWindowTop() throws IOException {
+	private Node buildMainWindowTop() {
 
 		BorderPane navigationBar = new BorderPane();
 
 		navigationBar.setCenter(buildNavbarOptions());
-		navigationBar.setLeft(buildNavbarLogo());
 		navigationBar.setRight(buildMangaSearch());
 
 		navigationBar.setMinWidth(1280);
@@ -101,13 +85,13 @@ public class RootNode {
 		return navigationBar;
 	}
 
-	private Node buildNavbarOptions() throws IOException {
+	private Node buildNavbarOptions() {
 		HBox hBox = new HBox();
 		hBox.getChildren().addAll(buildMangaMenu());
 		return hBox;
 	}
 
-	private Node buildMangaMenu() throws IOException {
+	private Node buildMangaMenu() {
 
 		//TODO Nachdem navBar erstellt wurde funktioniert setFill nicht mehr
 		MenuBar navBar = new MenuBar();
@@ -125,9 +109,7 @@ public class RootNode {
 
 	private MenuItem buildMangaStandard() {
 		MenuItem standard = new MenuItem("Manga");
-		standard.setOnAction(event -> {
-			RootNode.getCenterNode().getChildren().set(0, HomePage.getHomeNode());
-		});
+		standard.setOnAction(event -> RootNode.getCenterNode().getChildren().set(0, HomePage.getHomeNode()));
 		return standard;
 	}
 
@@ -173,7 +155,7 @@ public class RootNode {
 
 		searchBox.setOnAction(event -> {
 			try {
-				rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
+				RootNode.getCenterNode().getChildren().set(0, SearchPage.searchManga(searchBox.getText()));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -189,19 +171,12 @@ public class RootNode {
 		button.setId("searchButton");
 		button.setOnAction(event -> {
 			try {
-				rootNode.setCenter(SearchPage.searchManga(searchBox.getText()));
+				RootNode.getCenterNode().getChildren().set(0, SearchPage.searchManga(searchBox.getText()));
 			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
 		});
 		return button;
-	}
-
-
-	private Node buildNavbarLogo() {
-		//TODO Wie man Images einfügt nachschauen
-		Image mangaDexLogo;
-		return null;
 	}
 
 	private Node buildMainWindowCenter() throws IOException {

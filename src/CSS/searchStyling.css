@@ -29,8 +29,8 @@
 }
 
 .searchBox{
-	-fx-max-width         :600;
-	-fx-min-width         :600;
+	-fx-max-width         :635;
+	-fx-min-width         :635;
 	
 	-fx-background-color  :#212425;
 	-fx-background-radius :20;

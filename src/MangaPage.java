@@ -1,10 +1,7 @@
 import APIChapters.APICChaptersRelationships;
 import APIChapters.APIChaptersData;
 import APIChapters.APIChaptersResponse;
-import APIMangaClasses.APIAltTitles;
-import APIMangaClasses.APIManga;
-import APIMangaClasses.APIMangaListRelationships;
-import APIMangaClasses.APITags;
+import APIMangaClasses.*;
 import com.google.gson.Gson;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -35,7 +32,7 @@ public class MangaPage {
 
 	static void setManga(String id) throws IOException {
 
-		//Fals der gewünschte Manga schon geladen ist wird direkt returned
+		//Falls der gewünschte Manga schon geladen ist, wird direkt returned
 		if(mangaObject != null)
 			if(id.equals(mangaObject.data.id))
 				return;
@@ -45,6 +42,8 @@ public class MangaPage {
 		MangaPage.mangaPage = new ScrollPane(mangaPage);
 		MangaPage.mangaPage.setMaxWidth(RootNode.getWidth() - 1);
 		MangaPage.mangaPage.setMinWidth(RootNode.getWidth() - 1);
+		MangaPage.mangaPage.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		MangaPage.mangaPage.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 	}
 
 	private static HBox buildMangaTop() {
@@ -84,7 +83,8 @@ public class MangaPage {
 			}
 		}
 
-		back.getChildren().addAll(cover, new VBox(title, englishTitle, getPeople(), getTags(), buildMangaDescription()));
+		back.getChildren()
+			.addAll(cover, new VBox(title, englishTitle, getPeople(), getTags(mangaObject.data.attributes), buildMangaDescription()));
 		return back;
 	}
 
@@ -102,11 +102,16 @@ public class MangaPage {
 		return people;
 	}
 
-	private static HBox getTags() {
+	public static HBox getTags(APIMangaListAttributes attributes) {
+
+		HBox placeholder = new HBox();
+		placeholder.setMinWidth(5);
+		placeholder.setMaxWidth(5);
+
 		Label contentRating = new Label();
-		if(mangaObject.data.attributes.contentRating!=null){
-			contentRating.setText(mangaObject.data.attributes.contentRating.toUpperCase());
-			switch(mangaObject.data.attributes.contentRating){
+		if(attributes.contentRating != null) {
+			contentRating.setText(attributes.contentRating.toUpperCase());
+			switch(attributes.contentRating) {
 				case "Gore":
 				case "Doujinshi":
 					contentRating.setStyle("-fx-background-color :#FF4040;");
@@ -117,17 +122,18 @@ public class MangaPage {
 				default:
 					contentRating.setStyle("-fx-background-color:#066000");
 			}
+			contentRating.getStyleClass().add("mangaTag");
 		}
-		HBox tags = new HBox(contentRating);
+		HBox tags = new HBox(contentRating,placeholder);
 
-		for(APITags tag : mangaObject.data.attributes.tags) {
+		for(APITags tag : attributes.tags) {
 			Label tagLabel = new Label(tag.attributes.name.en.toUpperCase());
 			tagLabel.getStyleClass().add("mangaTag");
 
-			HBox placeholder = new HBox();
-			placeholder.setMinWidth(5);
+			placeholder = new HBox();
 			placeholder.setMaxWidth(5);
-			tags.getChildren().addAll(tagLabel,placeholder);
+			placeholder.setMinWidth(5);
+			tags.getChildren().addAll(tagLabel, placeholder);
 		}
 		return tags;
 	}
