@@ -55,7 +55,6 @@ public class RootNode {
 
 		Scene scene = new Scene(rootNode);
 
-
 		scene.getStylesheets()
 			 .addAll(Objects.requireNonNull(getClass().getResource("CSS/MainWindow.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/NavBar.css")).toExternalForm(),
@@ -64,7 +63,6 @@ public class RootNode {
 					 Objects.requireNonNull(getClass().getResource("CSS/searchStyling.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/RecentlyAdded.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/LatestUpdated.css")).toExternalForm());
-
 
 		ReadManga.initializeReadManga();
 
@@ -214,9 +212,6 @@ public class RootNode {
 		HomePage.buildMainGUIMainPage();
 		centerNode.getChildren().add(HomePage.getHomeNode());
 
-
 		return centerNode;
 	}
-
-
 }

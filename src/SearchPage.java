@@ -106,7 +106,6 @@ public class SearchPage {
 		HBox stats = new HBox(rating, follows/*, views, comments*/, publicationStatus);
 		stats.getStyleClass().add("searchStats");
 
-
 		HBox tags = MangaPage.getTags(manga.attributes);
 
 		Label description = new Label("Not available");
