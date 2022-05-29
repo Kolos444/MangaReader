@@ -11,38 +11,36 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.util.Objects;
 
 public class ReadManga {
 
-	private static Stage  readerStage;
 	private static String imageBaseUrl, chapterHash;
 	private static ImageView imageLeft, imageRight;
 	private static int indexRight, indexLeft, loadedPages, maxPages;
 	private static boolean  offset;
 	private static Image[]  pages;
 	private static String[] pagePath;
+	private static Scene reader;
 
 	public static void open(String id) throws IOException {
-		readerStage.show();
-		RootNode.getStage().hide();
+
+		RootNode.getStage().setScene(reader);
+		RootNode.getStage().setFullScreen(true);
 
 		openChapter(id);
 	}
 
 	public static void initializeReadManga() {
 
-		prepareStage();
-
 		prepareImageViews();
 
-		readerStage.setScene(prepareScene());
+		reader = prepareScene();
 	}
 
 	private static Scene prepareScene() {
@@ -161,12 +159,6 @@ public class ReadManga {
 		}
 	}
 
-	private static void prepareStage() {
-		readerStage = new Stage();
-		readerStage.initStyle(StageStyle.UNDECORATED);
-		readerStage.setFullScreen(true);
-	}
-
 	private static void prepareImageViews() {
 		imageLeft  = new ImageView("file:Images/Image not Found.jpg");
 		imageRight = new ImageView("file:Images/Image not Found.jpg");
@@ -186,13 +178,13 @@ public class ReadManga {
 
 	private static void closeReader() {
 
-		RootNode.getStage().show();
-		readerStage.close();
+		RootNode.getStage().setScene(RootNode.getMainScene());
+		RootNode.getStage().setFullScreen(false);
 	}
 
 	private static void openChapter(String id) throws IOException {
 
-		getChapterPages(getChapter(id));
+		getChapterPages(Objects.requireNonNull(getChapter(id)));
 
 		indexRight = 0;
 		indexLeft  = 1;

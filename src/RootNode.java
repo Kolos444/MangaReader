@@ -16,6 +16,12 @@ public class RootNode {
 
 	private static final double width = 1280, height = 720;
 
+	public static Scene getMainScene() {
+		return mainScene;
+	}
+
+	private static Scene mainScene;
+
 	public static Stage getStage() {
 		return stage;
 	}
@@ -53,10 +59,10 @@ public class RootNode {
 			stage.setY(event.getScreenY() - yOffset);
 		});
 
-		Scene scene = new Scene(rootNode);
+		mainScene = new Scene(rootNode);
 
-		scene.getStylesheets()
-			 .addAll(Objects.requireNonNull(getClass().getResource("CSS/MainWindow.css")).toExternalForm(),
+		mainScene.getStylesheets()
+				 .addAll(Objects.requireNonNull(getClass().getResource("CSS/MainWindow.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/NavBar.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/SeasonalManga.css")).toExternalForm(),
 					 Objects.requireNonNull(getClass().getResource("CSS/mangaPage.css")).toExternalForm(),
@@ -69,7 +75,7 @@ public class RootNode {
 		rootNode.setTop(buildMainWindowTop());
 		rootNode.setCenter(buildMainWindowCenter());
 
-		stage.setScene(scene);
+		stage.setScene(mainScene);
 		stage.show();
 	}
 
